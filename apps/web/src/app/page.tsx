@@ -4,7 +4,6 @@ import localFont from "next/font/local";
 import CardNav, { type CardNavItem } from "@/components/CardNav";
 import { AuthButton } from "@/components/auth-button";
 import { CarelyMark } from "@/components/carely-mark";
-import { HowItWorksSection } from "@/components/how-it-works-section";
 import heroImage from "../../public/carely-hero.jpg";
 
 const mackinac = localFont({
@@ -100,7 +99,6 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
         <CarelyLogo />
       </section>
-      <HowItWorksSection />
     </main>
   );
 }
