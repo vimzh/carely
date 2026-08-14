@@ -74,12 +74,13 @@ function GuideCard({
           <div className="flex items-center gap-1">
             <Button
               type="button"
-              variant="ghost"
-              size="icon-sm"
+              variant="outline"
+              size="sm"
               aria-label={`Edit ${guide.title}`}
               onClick={onEdit}
             >
               <Pencil aria-hidden="true" />
+              Edit
             </Button>
             <Button
               type="button"
