@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 
 import { LandingNavbar } from "@/components/landing-navbar";
+import { LandingUseCases } from "@/components/landing-use-cases";
 import AIOrbFace from "@/components/smoothui/ai-orb-face";
 
 const mackinac = localFont({
@@ -30,7 +31,7 @@ function HeroContent() {
       <h1 className="mt-8 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
         Everyday help for your elderly parents.
       </h1>
-      <p id="use-cases" className="mt-6 max-w-2xl text-balance text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+      <p className="mt-6 max-w-2xl text-balance text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
         Add medicine reminders, household guides, and family context once. Your parent or
         grandparent can call Carely from any phone and get patient, real-time help with the
         little things they would normally ask you.
@@ -49,6 +50,7 @@ export default function Home() {
         <LandingNavbar />
         <HeroContent />
       </section>
+      <LandingUseCases />
     </main>
   );
 }
