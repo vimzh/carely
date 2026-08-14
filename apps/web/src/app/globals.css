@@ -225,9 +225,10 @@
 .carely-hero-background {
   background-color: #fbfaf6;
   background-image:
-    radial-gradient(ellipse 62% 82% at -10% 45%, oklch(0.78 0.1 151 / 0.42), transparent 70%),
-    radial-gradient(ellipse 62% 82% at 110% 38%, oklch(0.82 0.08 151 / 0.36), transparent 70%),
-    radial-gradient(ellipse 70% 48% at 50% 112%, oklch(0.9 0.04 151 / 0.3), transparent 72%);
+    radial-gradient(ellipse 76% 48% at 50% -18%, oklch(0.72 0.13 151 / 0.5), transparent 66%),
+    radial-gradient(ellipse 58% 82% at -10% 48%, oklch(0.7 0.14 151 / 0.52), transparent 68%),
+    radial-gradient(ellipse 58% 82% at 110% 42%, oklch(0.73 0.13 151 / 0.48), transparent 68%),
+    radial-gradient(ellipse 76% 48% at 50% 118%, oklch(0.76 0.11 151 / 0.46), transparent 66%);
 }
 
 @keyframes carely-blink {

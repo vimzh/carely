@@ -1,7 +1,6 @@
 import localFont from "next/font/local";
 
-import CardNav, { type CardNavItem } from "@/components/CardNav";
-import { AuthButton } from "@/components/auth-button";
+import { LandingNavbar } from "@/components/landing-navbar";
 import AIOrbFace from "@/components/smoothui/ai-orb-face";
 
 const mackinac = localFont({
@@ -10,44 +9,6 @@ const mackinac = localFont({
   style: "normal",
   display: "swap",
 });
-
-const navItems: CardNavItem[] = [
-  {
-    label: "How it works",
-    bgColor: "var(--primary)",
-    textColor: "var(--primary-foreground)",
-    links: [
-      {
-        label: "For grandparents",
-        href: "#carely-hero",
-        ariaLabel: "How Carely works for grandparents",
-      },
-      {
-        label: "For families",
-        href: "#carely-hero",
-        ariaLabel: "How families set up Carely",
-      },
-    ],
-  },
-  {
-    label: "Families",
-    bgColor: "var(--secondary)",
-    textColor: "var(--secondary-foreground)",
-    links: [
-      { label: "Dashboard", href: "/home", ariaLabel: "Carely family dashboard" },
-      { label: "What Carely knows", href: "#", ariaLabel: "What Carely knows" },
-    ],
-  },
-  {
-    label: "Carely",
-    bgColor: "var(--accent)",
-    textColor: "var(--accent-foreground)",
-    links: [
-      { label: "Our approach", href: "#", ariaLabel: "Our approach" },
-      { label: "Contact", href: "#", ariaLabel: "Contact Carely" },
-    ],
-  },
-];
 
 function HeroContent() {
   return (
@@ -69,7 +30,7 @@ function HeroContent() {
       <h1 className="mt-8 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
         Everyday help for your elderly parents.
       </h1>
-      <p className="mt-6 max-w-2xl text-balance text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+      <p id="use-cases" className="mt-6 max-w-2xl text-balance text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
         Add medicine reminders, household guides, and family context once. Your parent or
         grandparent can call Carely from any phone and get patient, real-time help with the
         little things they would normally ask you.
@@ -85,18 +46,7 @@ export default function Home() {
         id="carely-hero"
         className="carely-hero-background relative grid min-h-screen place-items-center overflow-hidden"
       >
-        <CardNav
-          logo="/icon.svg"
-          logoAlt="Carely"
-          items={navItems}
-          baseColor="var(--card)"
-          menuColor="var(--foreground)"
-          buttonBgColor="var(--primary)"
-          buttonTextColor="var(--primary-foreground)"
-          buttonLabel="Try now"
-          buttonClassName={`${mackinac.className} font-normal`}
-          button={<AuthButton className={`${mackinac.className} font-normal`} />}
-        />
+        <LandingNavbar />
         <HeroContent />
       </section>
     </main>

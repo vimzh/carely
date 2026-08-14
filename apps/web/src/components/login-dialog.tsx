@@ -29,7 +29,7 @@ export function LoginDialog({
           color="green"
           className={`order-2 h-full px-3 md:order-none md:px-4 ${className ?? ""}`}
         >
-          Try now
+          Login
         </SmoothButton>
       </DialogTrigger>
       <DialogContent className="gap-6 p-6 sm:p-7">
