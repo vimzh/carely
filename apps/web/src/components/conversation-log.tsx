@@ -1,4 +1,14 @@
 // Plain-language call summaries for the family dashboard.
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 const conversations = [
   {
     time: "Today · 9:00 AM",
@@ -26,26 +36,28 @@ export function ConversationLog() {
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
         A short summary of what your family elder asked about and where they needed help.
       </p>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[38rem] text-left text-sm">
-          <caption className="sr-only">Recent Carely conversation summaries</caption>
-          <thead className="border-b border-border text-muted-foreground">
-            <tr>
-              <th scope="col" className="pb-3 pr-6 font-medium">Time</th>
-              <th scope="col" className="pb-3 pr-6 font-medium">Topic</th>
-              <th scope="col" className="pb-3 font-medium">Summary</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="mt-4 rounded-md border">
+        <Table className="min-w-[38rem]">
+          <TableCaption className="sr-only">Recent Carely conversation summaries</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Time</TableHead>
+              <TableHead>Topic</TableHead>
+              <TableHead>Summary</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {conversations.map((conversation) => (
-              <tr key={`${conversation.time}-${conversation.topic}`} className="border-b border-border last:border-b-0">
-                <td className="py-4 pr-6 align-top text-muted-foreground">{conversation.time}</td>
-                <th scope="row" className="py-4 pr-6 align-top font-medium">{conversation.topic}</th>
-                <td className="py-4 align-top leading-6 text-muted-foreground">{conversation.summary}</td>
-              </tr>
+              <TableRow key={`${conversation.time}-${conversation.topic}`}>
+                <TableCell className="align-top text-muted-foreground">{conversation.time}</TableCell>
+                <TableCell className="align-top font-medium">{conversation.topic}</TableCell>
+                <TableCell className="whitespace-normal align-top leading-6 text-muted-foreground">
+                  {conversation.summary}
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </section>
   );
