@@ -1,7 +1,6 @@
 // Session-only visual guides that Carely can explain during a phone call.
 "use client";
 
-import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { BookOpenText, Plus, Trash2 } from "lucide-react";
 
@@ -60,17 +59,7 @@ const initialGuides: Guide[] = [
 
 function GuideCard({ guide, onRemove }: { guide: Guide; onRemove: () => void }) {
   return (
-    <Card className="overflow-hidden rounded-md shadow-none">
-      <div className="relative aspect-[16/7] w-full bg-muted">
-        <Image
-          src={guide.image}
-          alt=""
-          fill
-          unoptimized
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
-        />
-      </div>
+    <Card className="rounded-md shadow-none">
       <CardHeader className="gap-2">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-xl">{guide.title}</CardTitle>
@@ -193,7 +182,7 @@ export function GuidesManager() {
         </Dialog>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
         {guides.map((guide) => (
           <GuideCard
             key={guide.id}
