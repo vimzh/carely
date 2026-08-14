@@ -70,7 +70,7 @@ export function LandingWorkflow() {
                   className="aspect-[3/2] w-full object-cover"
                 />
               </div>
-              <div className="relative z-10 col-start-1 row-start-1 mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground ring-8 ring-background lg:col-start-2 lg:mt-0 lg:self-center">
+              <div className="relative z-10 col-start-1 row-start-1 mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground ring-8 ring-background lg:col-start-2 lg:mt-0 lg:self-center lg:justify-self-center">
                 {Number(number)}
               </div>
               <div
