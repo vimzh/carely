@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { BookOpenText, Plus, Trash2 } from "lucide-react";
+import { BookOpenText, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -57,21 +57,40 @@ const initialGuides: Guide[] = [
   },
 ];
 
-function GuideCard({ guide, onRemove }: { guide: Guide; onRemove: () => void }) {
+function GuideCard({
+  guide,
+  onEdit,
+  onRemove,
+}: {
+  guide: Guide;
+  onEdit: () => void;
+  onRemove: () => void;
+}) {
   return (
     <Card className="rounded-md shadow-none">
       <CardHeader className="gap-2">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-xl">{guide.title}</CardTitle>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Remove ${guide.title}`}
-            onClick={onRemove}
-          >
-            <Trash2 aria-hidden="true" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Edit ${guide.title}`}
+              onClick={onEdit}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Remove ${guide.title}`}
+              onClick={onRemove}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+          </div>
         </div>
         <CardDescription className="leading-6">{guide.note}</CardDescription>
       </CardHeader>
@@ -89,25 +108,61 @@ export function GuidesManager() {
   const [note, setNote] = useState("");
   const [context, setContext] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  function addGuide(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setGuides((current) => [
-      ...current,
-      {
-        id: `${title}-${Date.now()}`,
-        title: title.trim(),
-        note: note.trim(),
-        context: context.trim(),
-        contextAsset: imageFile
-          ? URL.createObjectURL(imageFile)
-          : "/card-backgrounds/add-what-matters.png",
-      },
-    ]);
+  function resetForm() {
     setTitle("");
     setNote("");
     setContext("");
     setImageFile(null);
+    setEditingId(null);
+  }
+
+  function startNewGuide() {
+    resetForm();
+    setOpen(true);
+  }
+
+  function editGuide(guide: Guide) {
+    setEditingId(guide.id);
+    setTitle(guide.title);
+    setNote(guide.note);
+    setContext(guide.context);
+    setImageFile(null);
+    setOpen(true);
+  }
+
+  function saveGuide(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setGuides((current) => {
+      if (!editingId) {
+        return [
+          ...current,
+          {
+            id: `${title}-${Date.now()}`,
+            title: title.trim(),
+            note: note.trim(),
+            context: context.trim(),
+            contextAsset: imageFile
+              ? URL.createObjectURL(imageFile)
+              : "/card-backgrounds/add-what-matters.png",
+          },
+        ];
+      }
+
+      return current.map((guide) =>
+        guide.id === editingId
+          ? {
+              ...guide,
+              title: title.trim(),
+              note: note.trim(),
+              context: context.trim(),
+              contextAsset: imageFile ? URL.createObjectURL(imageFile) : guide.contextAsset,
+            }
+          : guide,
+      );
+    });
+    resetForm();
     setOpen(false);
   }
 
@@ -122,19 +177,21 @@ export function GuidesManager() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="shrink-0">
+            <Button className="shrink-0" onClick={startNewGuide}>
               <Plus aria-hidden="true" />
               New Guide
             </Button>
           </DialogTrigger>
           <DialogContent className="gap-6 p-6 sm:max-w-lg sm:p-7">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Add a guide</DialogTitle>
+              <DialogTitle className="text-2xl">
+                {editingId ? "Edit guide" : "Add a guide"}
+              </DialogTitle>
               <DialogDescription className="leading-6">
                 Add the details Carely should explain when your parent asks for help.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={addGuide} className="grid gap-4">
+            <form onSubmit={saveGuide} className="grid gap-4">
               <label className="grid gap-2 text-sm font-medium" htmlFor="guide-title">
                 Title
                 <Input
@@ -177,7 +234,7 @@ export function GuidesManager() {
                 />
               </label>
               <Button type="submit" className="w-fit">
-                Add guide
+                {editingId ? "Save changes" : "Add guide"}
               </Button>
             </form>
           </DialogContent>
@@ -189,6 +246,7 @@ export function GuidesManager() {
           <GuideCard
             key={guide.id}
             guide={guide}
+            onEdit={() => editGuide(guide)}
             onRemove={() => setGuides((current) => current.filter(({ id }) => id !== guide.id))}
           />
         ))}
