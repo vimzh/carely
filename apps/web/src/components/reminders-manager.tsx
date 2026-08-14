@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/time-picker";
 
 type Reminder = {
   id: string;
@@ -26,7 +27,7 @@ const initialReminders: Reminder[] = [
   {
     id: "morning-medicine",
     title: "Morning medicine",
-    time: "09:00",
+    time: "9:00 AM",
     context: "Take the blue medicine in the box, then take the small white medicine beside it.",
   },
 ];
@@ -85,12 +86,10 @@ export function RemindersManager() {
               </label>
               <label className="grid gap-2 text-sm font-medium" htmlFor="reminder-time">
                 Call time
-                <Input
+                <TimePicker
                   id="reminder-time"
-                  type="time"
                   value={time}
-                  onChange={(event) => setTime(event.target.value)}
-                  required
+                  onChange={setTime}
                 />
               </label>
               <label className="grid gap-2 text-sm font-medium" htmlFor="reminder-context">
