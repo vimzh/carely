@@ -1,5 +1,6 @@
 import localFont from "next/font/local";
 
+import { LandingInspiration } from "@/components/landing-inspiration";
 import { LandingNavbar } from "@/components/landing-navbar";
 import { LandingUseCases } from "@/components/landing-use-cases";
 import AIOrbFace from "@/components/smoothui/ai-orb-face";
@@ -51,6 +52,7 @@ export default function Home() {
         <HeroContent />
       </section>
       <LandingUseCases />
+      <LandingInspiration />
     </main>
   );
 }
