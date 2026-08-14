@@ -27,7 +27,7 @@ type Guide = {
   title: string;
   note: string;
   context: string;
-  image: string;
+  contextAsset: string;
 };
 
 const initialGuides: Guide[] = [
@@ -37,7 +37,7 @@ const initialGuides: Guide[] = [
     note: "A simple way to cool the room without changing the wrong setting.",
     context:
       "Tell them to press the power button, choose Cool, and set the temperature to 24 degrees. If the remote shows a fan icon, press Mode until the snowflake appears.",
-    image: "/card-backgrounds/add-what-matters.png",
+    contextAsset: "/card-backgrounds/add-what-matters.png",
   },
   {
     id: "oven",
@@ -45,7 +45,7 @@ const initialGuides: Guide[] = [
     note: "Step-by-step help for warming food safely.",
     context:
       "Explain which knob turns the oven on, how to choose 180 degrees, and how to check that the red heating light has turned off before opening the door.",
-    image: "/card-backgrounds/call-from-any-phone.png",
+    contextAsset: "/card-backgrounds/call-from-any-phone.png",
   },
   {
     id: "tv-remote",
@@ -53,7 +53,7 @@ const initialGuides: Guide[] = [
     note: "Help finding the right channel and returning to normal TV.",
     context:
       "Start with the large power button, use the channel up and down buttons, and press Input if the screen says No signal. Remind them which button changes the volume.",
-    image: "/card-backgrounds/talk-it-through.png",
+    contextAsset: "/card-backgrounds/talk-it-through.png",
   },
 ];
 
@@ -99,7 +99,9 @@ export function GuidesManager() {
         title: title.trim(),
         note: note.trim(),
         context: context.trim(),
-        image: imageFile ? URL.createObjectURL(imageFile) : "/card-backgrounds/add-what-matters.png",
+        contextAsset: imageFile
+          ? URL.createObjectURL(imageFile)
+          : "/card-backgrounds/add-what-matters.png",
       },
     ]);
     setTitle("");
@@ -166,11 +168,11 @@ export function GuidesManager() {
                 />
               </label>
               <label className="grid gap-2 text-sm font-medium" htmlFor="guide-image">
-                Context image <span className="font-normal text-muted-foreground">(optional)</span>
+                Context image or PDF <span className="font-normal text-muted-foreground">(optional)</span>
                 <Input
                   id="guide-image"
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.pdf,application/pdf"
                   onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
                 />
               </label>
