@@ -37,7 +37,7 @@ export function LandingNavbar() {
             <Link
               key={label}
               href={href}
-              className="whitespace-nowrap text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
+              className="whitespace-nowrap text-sm font-medium text-black transition-colors hover:text-primary sm:text-base"
             >
               {label}
             </Link>
