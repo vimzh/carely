@@ -64,8 +64,8 @@ function CarelyLogo() {
       >
         Carely
       </h1>
-      <p className="text-base font-medium tracking-wide text-white/90 drop-shadow-sm sm:text-lg">
-        Be there, even when you can’t pick up.
+      <p className="max-w-xl text-center text-base font-medium tracking-wide text-white/90 drop-shadow-sm sm:text-lg">
+        Patient help for every little task, even when you can’t be there.
       </p>
     </div>
   );
