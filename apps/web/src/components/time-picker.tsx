@@ -33,12 +33,12 @@ export function TimePicker({
   }, [hour, minute, period, onChange]);
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-fit items-center rounded-lg border border-input bg-background p-1">
       <select
         aria-label="Hour"
         value={hour}
         onChange={(event) => setHour(event.target.value)}
-        className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-8 w-14 rounded-md border-0 bg-transparent px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         {hours.map((option) => (
           <option key={option} value={option}>
@@ -46,14 +46,14 @@ export function TimePicker({
           </option>
         ))}
       </select>
-      <span aria-hidden="true" className="text-muted-foreground">
+      <span aria-hidden="true" className="px-0.5 text-muted-foreground">
         :
       </span>
       <select
         aria-label="Minute"
         value={minute}
         onChange={(event) => setMinute(event.target.value)}
-        className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-8 w-14 rounded-md border-0 bg-transparent px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         {minutes.map((option) => (
           <option key={option} value={option}>
@@ -61,14 +61,14 @@ export function TimePicker({
           </option>
         ))}
       </select>
-      <div className="flex h-10 rounded-lg border border-input p-1" role="group" aria-label="AM or PM">
+      <div className="ml-1 flex rounded-md bg-muted p-0.5" role="group" aria-label="AM or PM">
         {(["AM", "PM"] as const).map((option) => (
           <button
             key={option}
             type="button"
             aria-pressed={period === option}
             className={cn(
-              "rounded-md px-3 text-sm transition-colors",
+              "h-7 rounded px-2.5 text-sm transition-colors",
               period === option ? "bg-primary text-primary-foreground" : "hover:bg-muted",
             )}
             onClick={() => setPeriod(option)}
