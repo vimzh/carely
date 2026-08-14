@@ -28,7 +28,7 @@ export function LandingInspiration() {
             household instructions, and the context the agent needs. Once Carely knows those things,
             it can patiently guide them through a call.
           </p>
-          <p className="border-l-2 border-primary pl-5 text-foreground">
+          <p>
             I am in college, attending classes, and working at my internship. I cannot be available
             every hour of the day—but Carely can still be there when they need help.
           </p>
