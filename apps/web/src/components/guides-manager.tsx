@@ -1,6 +1,7 @@
 // Session-only visual guides that Carely can explain during a phone call.
 "use client";
 
+import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { BookOpenText, Pencil, Plus, Trash2 } from "lucide-react";
 
@@ -28,6 +29,7 @@ type Guide = {
   note: string;
   context: string;
   contextAsset: string;
+  contextAssetKind: "image" | "pdf";
 };
 
 const initialGuides: Guide[] = [
@@ -38,6 +40,7 @@ const initialGuides: Guide[] = [
     context:
       "Tell them to press the power button, choose Cool, and set the temperature to 24 degrees. If the remote shows a fan icon, press Mode until the snowflake appears.",
     contextAsset: "/card-backgrounds/add-what-matters.png",
+    contextAssetKind: "image",
   },
   {
     id: "oven",
@@ -46,6 +49,7 @@ const initialGuides: Guide[] = [
     context:
       "Explain which knob turns the oven on, how to choose 180 degrees, and how to check that the red heating light has turned off before opening the door.",
     contextAsset: "/card-backgrounds/call-from-any-phone.png",
+    contextAssetKind: "image",
   },
   {
     id: "tv-remote",
@@ -54,45 +58,23 @@ const initialGuides: Guide[] = [
     context:
       "Start with the large power button, use the channel up and down buttons, and press Input if the screen says No signal. Remind them which button changes the volume.",
     contextAsset: "/card-backgrounds/talk-it-through.png",
+    contextAssetKind: "image",
   },
 ];
 
-function GuideCard({
-  guide,
-  onEdit,
-  onRemove,
-}: {
-  guide: Guide;
-  onEdit: () => void;
-  onRemove: () => void;
-}) {
+function GuideCard({ guide, onOpen }: { guide: Guide; onOpen: () => void }) {
   return (
-    <Card className="rounded-md shadow-none">
+    <Card
+      className="cursor-pointer rounded-md shadow-none transition-colors hover:bg-muted/30 focus-visible:ring-3 focus-visible:ring-ring/50"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") onOpen();
+      }}
+    >
       <CardHeader className="gap-2">
-        <div className="flex items-start justify-between gap-4">
-          <CardTitle className="text-xl">{guide.title}</CardTitle>
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label={`Edit ${guide.title}`}
-              onClick={onEdit}
-            >
-              <Pencil aria-hidden="true" />
-              Edit
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={`Remove ${guide.title}`}
-              onClick={onRemove}
-            >
-              <Trash2 aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
+        <CardTitle className="text-xl">{guide.title}</CardTitle>
         <CardDescription className="leading-6">{guide.note}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -110,6 +92,9 @@ export function GuidesManager() {
   const [context, setContext] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
+
+  const selectedGuide = guides.find(({ id }) => id === selectedGuideId) ?? null;
 
   function resetForm() {
     setTitle("");
@@ -147,6 +132,7 @@ export function GuidesManager() {
             contextAsset: imageFile
               ? URL.createObjectURL(imageFile)
               : "/card-backgrounds/add-what-matters.png",
+            contextAssetKind: imageFile?.type === "application/pdf" ? "pdf" : "image",
           },
         ];
       }
@@ -159,12 +145,22 @@ export function GuidesManager() {
               note: note.trim(),
               context: context.trim(),
               contextAsset: imageFile ? URL.createObjectURL(imageFile) : guide.contextAsset,
+              contextAssetKind: imageFile
+                ? imageFile.type === "application/pdf"
+                  ? "pdf"
+                  : "image"
+                : guide.contextAssetKind,
             }
           : guide,
       );
     });
     resetForm();
     setOpen(false);
+  }
+
+  function removeGuide(guideId: string) {
+    setGuides((current) => current.filter(({ id }) => id !== guideId));
+    setSelectedGuideId(null);
   }
 
   return (
@@ -247,11 +243,73 @@ export function GuidesManager() {
           <GuideCard
             key={guide.id}
             guide={guide}
-            onEdit={() => editGuide(guide)}
-            onRemove={() => setGuides((current) => current.filter(({ id }) => id !== guide.id))}
+            onOpen={() => setSelectedGuideId(guide.id)}
           />
         ))}
       </div>
+
+      <Dialog
+        open={selectedGuide !== null}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) setSelectedGuideId(null);
+        }}
+      >
+        <DialogContent className="gap-6 p-6 sm:max-w-4xl sm:p-8">
+          {selectedGuide && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedGuide.title}</DialogTitle>
+                <DialogDescription className="leading-6">{selectedGuide.note}</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-6 md:grid-cols-[1.1fr_1fr]">
+                <div className="relative min-h-64 overflow-hidden rounded-md border bg-muted">
+                  {selectedGuide.contextAssetKind === "pdf" ? (
+                    <iframe
+                      src={selectedGuide.contextAsset}
+                      title={`${selectedGuide.title} context PDF`}
+                      className="absolute inset-0 size-full"
+                    />
+                  ) : (
+                    <Image
+                      src={selectedGuide.contextAsset}
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  )}
+                </div>
+                <div className="grid content-start gap-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Context</p>
+                  <p className="text-sm leading-6">{selectedGuide.context}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        editGuide(selectedGuide);
+                        setSelectedGuideId(null);
+                      }}
+                    >
+                      <Pencil aria-hidden="true" />
+                      Edit guide
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeGuide(selectedGuide.id)}
+                    >
+                      <Trash2 aria-hidden="true" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {!guides.length && (
         <div className="flex flex-col items-center gap-2 border border-dashed border-border p-10 text-center">
