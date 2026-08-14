@@ -1,10 +1,8 @@
-import Image from "next/image";
 import localFont from "next/font/local";
 
 import CardNav, { type CardNavItem } from "@/components/CardNav";
 import { AuthButton } from "@/components/auth-button";
-import { CarelyMark } from "@/components/carely-mark";
-import heroImage from "../../public/carely-hero.jpg";
+import AIOrbFace from "@/components/smoothui/ai-orb-face";
 
 const mackinac = localFont({
   src: "./fonts/p22-mackinac-book.woff2",
@@ -21,12 +19,12 @@ const navItems: CardNavItem[] = [
     links: [
       {
         label: "For grandparents",
-        href: "#how-carely-works",
+        href: "#carely-hero",
         ariaLabel: "How Carely works for grandparents",
       },
       {
         label: "For families",
-        href: "#how-carely-works",
+        href: "#carely-hero",
         ariaLabel: "How families set up Carely",
       },
     ],
@@ -51,21 +49,28 @@ const navItems: CardNavItem[] = [
   },
 ];
 
-function CarelyLogo() {
+function HeroContent() {
   return (
-    <div className="relative z-10 flex -translate-y-8 flex-col items-center gap-3 sm:-translate-y-10">
-      <CarelyMark
-        animated
-        framed={false}
-        className="size-44 drop-shadow-lg sm:size-52"
+    <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 pt-24 text-center sm:pt-28">
+      <AIOrbFace
+        aria-label="Carely voice companion"
+        size="clamp(9rem, 18vw, 13rem)"
+        colors={{
+          body: "oklch(84% 0.09 151)",
+          bodyEdge: "oklch(68% 0.14 151)",
+          feature: "oklch(25% 0.04 151)",
+        }}
       />
-      <h1
-        className={`${mackinac.className} text-5xl font-normal tracking-tight text-white drop-shadow-md sm:text-6xl`}
-      >
+      <p className={`${mackinac.className} mt-6 text-xl font-normal text-primary sm:text-2xl`}>
         Carely
+      </p>
+      <h1 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
+        Everyday help for your parents, even when you can’t pick up.
       </h1>
-      <p className="max-w-xl text-center text-base font-medium tracking-wide text-white/90 drop-shadow-sm sm:text-lg">
-        Patient help for every little task, even when you can’t be there.
+      <p className="mt-6 max-w-2xl text-balance text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+        Add medicine reminders, household guides, and family context once. Your parent or
+        grandparent can call Carely from any phone and get patient, real-time help with the
+        little things they would normally ask you.
       </p>
     </div>
   );
@@ -74,7 +79,10 @@ function CarelyLogo() {
 export default function Home() {
   return (
     <main>
-      <section className="relative grid min-h-screen place-items-center overflow-hidden">
+      <section
+        id="carely-hero"
+        className="carely-hero-background relative grid min-h-screen place-items-center overflow-hidden"
+      >
         <CardNav
           logo="/icon.svg"
           logoAlt="Carely"
@@ -87,17 +95,7 @@ export default function Home() {
           buttonClassName={`${mackinac.className} font-normal`}
           button={<AuthButton className={`${mackinac.className} font-normal`} />}
         />
-        <Image
-          src={heroImage}
-          alt=""
-          fill
-          preload
-          placeholder="blur"
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
-        <CarelyLogo />
+        <HeroContent />
       </section>
     </main>
   );

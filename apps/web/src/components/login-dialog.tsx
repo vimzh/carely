@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 
 import { Button } from "@/components/ui/button";
+import SmoothButton from "@/components/smoothui/smooth-button";
 import {
   Dialog,
   DialogContent,
@@ -23,11 +24,13 @@ export function LoginDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
+        <SmoothButton
+          variant="candy"
+          color="green"
           className={`order-2 h-full px-3 md:order-none md:px-4 ${className ?? ""}`}
         >
           Try now
-        </Button>
+        </SmoothButton>
       </DialogTrigger>
       <DialogContent className="gap-6 p-6 sm:p-7">
         <Image src="/icon.svg" alt="" width={40} height={40} className="size-10" />
