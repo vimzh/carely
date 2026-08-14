@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpenText, ContactRound, Home } from "lucide-react";
+import { BellRing, BookOpenText, ContactRound, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -27,6 +27,7 @@ import {
 const navItems = [
   { label: "Home", href: "/home", icon: Home },
   { label: "Contacts", href: "/contacts", icon: ContactRound },
+  { label: "Reminders", href: "/reminders", icon: BellRing },
   { label: "Guides", href: "/guides", icon: BookOpenText },
 ];
 
