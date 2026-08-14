@@ -19,8 +19,8 @@ export function LandingInspiration() {
           <p>
             Last summer, I gave them a digital oven so they could cook good food for themselves.
             I can only visit every six or seven months, and when I went again to visit them, it was
-            still unused. The controls were difficult to understand, they do not read English, and
-            they had no simple way to ask what each button did.
+            still unused. The controls were difficult to understand, they only speak Hindi and do
+            not understand English, and they had no simple way to ask what each button did.
           </p>
           <p>
             That experience became Carely. My parents can call from the ordinary phone they already
