@@ -4,6 +4,7 @@ import { LandingFaq } from "@/components/landing-faq";
 import { LandingInspiration } from "@/components/landing-inspiration";
 import { LandingNavbar } from "@/components/landing-navbar";
 import { LandingUseCases } from "@/components/landing-use-cases";
+import { LandingWorkflow } from "@/components/landing-workflow";
 import AIOrbFace from "@/components/smoothui/ai-orb-face";
 
 const mackinac = localFont({
@@ -54,6 +55,7 @@ export default function Home() {
       </section>
       <LandingUseCases />
       <LandingInspiration />
+      <LandingWorkflow />
       <LandingFaq />
     </main>
   );
