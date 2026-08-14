@@ -28,6 +28,30 @@ const conversations = [
     summary: "Asked when the next family visit is planned.",
     experience: "Helpful",
   },
+  {
+    time: "Sunday · 7:45 PM",
+    topic: "Evening medicine",
+    summary: "Needed a second explanation of the small white tablet.",
+    experience: "Needs follow-up",
+  },
+  {
+    time: "Saturday · 10:00 AM",
+    topic: "Weather",
+    summary: "Asked whether it was safe to go for a walk outside.",
+    experience: "Helpful",
+  },
+  {
+    time: "Friday · 6:20 PM",
+    topic: "Phone help",
+    summary: "Asked how to turn the ringer back on after missing a call.",
+    experience: "Helpful",
+  },
+  {
+    time: "Thursday · 8:10 AM",
+    topic: "Appointment reminder",
+    summary: "Asked for the clinic address and appointment time again.",
+    experience: "Needs follow-up",
+  },
 ];
 
 export function ConversationLog() {
