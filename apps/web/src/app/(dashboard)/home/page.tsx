@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 
 import { CareStats } from "@/components/care-stats";
+import { ConversationLog } from "@/components/conversation-log";
 import { TutorialsCard } from "@/components/tutorials-card";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +17,7 @@ export default function HomePage() {
         </div>
         <TutorialsCard />
         <CareStats />
+        <ConversationLog />
       </div>
     </main>
   );
