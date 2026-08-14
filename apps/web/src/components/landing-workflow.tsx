@@ -45,10 +45,22 @@ export function LandingWorkflow() {
           </p>
         </div>
 
-        <div className="mt-16 divide-y divide-border border-y border-border">
+        <div className="relative mt-12 sm:mt-16">
+          <div
+            aria-hidden="true"
+            className="absolute bottom-10 left-6 top-10 border-l-2 border-dashed border-primary/30 lg:left-1/2"
+          />
           {steps.map(({ number, title, description, image, alt }, index) => (
-            <article key={number} className="grid items-center gap-8 py-10 lg:grid-cols-2 lg:gap-16 lg:py-14">
-              <div className={cn("overflow-hidden rounded-md border border-border", index % 2 === 1 && "lg:order-2")}>
+            <article
+              key={number}
+              className="relative grid grid-cols-[3rem_minmax(0,1fr)] gap-x-4 gap-y-6 py-8 lg:grid-cols-[1fr_5rem_1fr] lg:items-center lg:gap-x-8 lg:py-14"
+            >
+              <div
+                className={cn(
+                  "col-start-2 row-start-1 overflow-hidden rounded-md lg:row-start-1",
+                  index % 2 === 0 ? "lg:col-start-1" : "lg:col-start-3",
+                )}
+              >
                 <Image
                   src={image}
                   alt={alt}
@@ -58,9 +70,16 @@ export function LandingWorkflow() {
                   className="aspect-[3/2] w-full object-cover"
                 />
               </div>
-              <div className={cn(index % 2 === 1 && "lg:order-1")}>
-                <p className="text-sm font-semibold text-primary">{number}</p>
-                <h3 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h3>
+              <div className="relative z-10 col-start-1 row-start-1 mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground ring-8 ring-background lg:col-start-2 lg:mt-0 lg:self-center">
+                {Number(number)}
+              </div>
+              <div
+                className={cn(
+                  "col-start-2 row-start-2 lg:row-start-1",
+                  index % 2 === 0 ? "lg:col-start-3" : "lg:col-start-1",
+                )}
+              >
+                <h3 className="text-3xl font-semibold tracking-tight">{title}</h3>
                 <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
                   {description}
                 </p>
