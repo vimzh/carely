@@ -14,16 +14,19 @@ const conversations = [
     time: "Today · 9:00 AM",
     topic: "Morning medicine",
     summary: "Asked which medicine to take first; the blue box was explained.",
+    experience: "Helpful",
   },
   {
     time: "Yesterday · 8:30 PM",
     topic: "TV instructions",
     summary: "Needed help switching back to the regular TV channel.",
+    experience: "Needs follow-up",
   },
   {
     time: "Monday · 11:15 AM",
     topic: "Family question",
     summary: "Asked when the next family visit is planned.",
+    experience: "Helpful",
   },
 ];
 
@@ -44,6 +47,7 @@ export function ConversationLog() {
               <TableHead>Time</TableHead>
               <TableHead>Topic</TableHead>
               <TableHead>Summary</TableHead>
+              <TableHead className="text-right">Experience</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -53,6 +57,11 @@ export function ConversationLog() {
                 <TableCell className="align-top font-medium">{conversation.topic}</TableCell>
                 <TableCell className="whitespace-normal align-top leading-6 text-muted-foreground">
                   {conversation.summary}
+                </TableCell>
+                <TableCell className="text-right align-top">
+                  <span className="inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium">
+                    {conversation.experience}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}
