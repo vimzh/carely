@@ -42,18 +42,20 @@ export function LandingUseCases() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid auto-rows-fr gap-5 md:grid-cols-3">
           {useCases.map(({ title, description, image, alt }) => (
-            <Card key={title} className="gap-0 rounded-md p-2 shadow-none">
-              <Image
-                src={image}
-                alt={alt}
-                width={1200}
-                height={800}
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="aspect-[3/2] w-full rounded-sm object-cover"
-              />
-              <CardHeader className="gap-2 px-3 py-5">
+            <Card key={title} className="grid h-full grid-rows-[auto_1fr] gap-0 rounded-md p-2 shadow-none">
+              <div className="overflow-hidden rounded-sm bg-muted">
+                <Image
+                  src={image}
+                  alt={alt}
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="aspect-[3/2] w-full object-cover"
+                />
+              </div>
+              <CardHeader className="content-start gap-2 p-4 pb-5">
                 <CardTitle className="text-lg">{title}</CardTitle>
                 <CardDescription className="leading-6">{description}</CardDescription>
               </CardHeader>
