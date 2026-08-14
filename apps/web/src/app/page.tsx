@@ -1,5 +1,6 @@
 import localFont from "next/font/local";
 
+import { LandingFaq } from "@/components/landing-faq";
 import { LandingInspiration } from "@/components/landing-inspiration";
 import { LandingNavbar } from "@/components/landing-navbar";
 import { LandingUseCases } from "@/components/landing-use-cases";
@@ -53,6 +54,7 @@ export default function Home() {
       </section>
       <LandingUseCases />
       <LandingInspiration />
+      <LandingFaq />
     </main>
   );
 }
