@@ -1,5 +1,6 @@
 import localFont from "next/font/local";
 
+import { AuthButton } from "@/components/auth-button";
 import { LandingFaq } from "@/components/landing-faq";
 import { LandingInspiration } from "@/components/landing-inspiration";
 import { LandingNavbar } from "@/components/landing-navbar";
@@ -39,6 +40,14 @@ function HeroContent() {
         grandparent can call Carely from any phone and get patient, real-time help with the
         little things they would normally ask you.
       </p>
+      <div className="mt-8">
+        <AuthButton
+          authenticatedHref="/try"
+          signedOutRedirectTo="/try"
+          label="Test Carely"
+          className="h-11 px-6"
+        />
+      </div>
     </div>
   );
 }
@@ -53,7 +62,7 @@ export default function Home() {
         <LandingNavbar />
         <HeroContent />
         <p className="absolute inset-x-0 bottom-6 z-10 text-center text-xs text-muted-foreground sm:bottom-8">
-          powered by Google&apos;s Gemini 3.5
+          powered by Google Gemini
         </p>
       </section>
       <LandingUseCases />

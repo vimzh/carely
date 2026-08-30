@@ -29,7 +29,7 @@ function twiml(message: string) {
     "'": "&apos;",
     '"': "&quot;",
   })[character]!);
-  return `<Response><Say>${escaped}</Say></Response>`;
+  return `<Response><Say language="hi-IN">${escaped}</Say></Response>`;
 }
 
 export async function POST(request: Request) {
@@ -51,9 +51,9 @@ export async function POST(request: Request) {
 
   return new Response(
     twiml(
-      response.toLowerCase().includes("help")
-        ? `I heard that you need help with ${reminderCall.title}. Please call a trusted family member now.`
-        : `Thank you. I heard your answer about ${reminderCall.title}.`,
+      /help|मदद/i.test(response)
+        ? `${reminderCall.title} में आपको मदद चाहिए। कृपया अभी परिवार के किसी भरोसेमंद सदस्य को फोन कीजिए।`
+        : `${reminderCall.title} के बारे में आपका जवाब सुन लिया है। धन्यवाद।`,
     ),
     { headers: { "content-type": "text/xml; charset=utf-8" } },
   );

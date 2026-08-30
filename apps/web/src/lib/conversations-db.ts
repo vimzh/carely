@@ -1,4 +1,6 @@
 // Persists text-agent exchanges and their server-generated quality breakdown.
+import { createHash } from "node:crypto";
+
 import { database } from "@/lib/database";
 import {
   normalizeConversationCapture,
@@ -212,12 +214,13 @@ function seedConversationLogs(ownerEmail: string) {
     INSERT INTO conversation_logs (owner_email, id, created_at, question, answer, score_json)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
+  const ownerId = createHash("sha256").update(ownerEmail.trim().toLowerCase()).digest("hex").slice(0, 24);
   database.exec("BEGIN");
   try {
     for (const conversation of starterConversations) {
       insert.run(
         ownerEmail,
-        conversation.id,
+        `${ownerId}-${conversation.id}`,
         conversation.createdAt,
         conversation.question,
         conversation.answer,

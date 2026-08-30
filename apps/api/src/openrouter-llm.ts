@@ -2,6 +2,12 @@
 import { BaseLlm, type LlmRequest, type LlmResponse } from '@google/adk'
 
 type JsonObject = Record<string, unknown>
+const OPENROUTER_TIMEOUT_MS = 30_000
+
+export function openRouterSignal(abortSignal?: AbortSignal, timeoutMs = OPENROUTER_TIMEOUT_MS) {
+  const timeout = AbortSignal.timeout(timeoutMs)
+  return abortSignal ? AbortSignal.any([abortSignal, timeout]) : timeout
+}
 
 function normalizeSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(normalizeSchema)
@@ -97,7 +103,7 @@ export class OpenRouterLlm extends BaseLlm {
         'X-Title': 'Carely',
       },
       body: JSON.stringify({ model: this.model, ...buildOpenRouterRequest(llmRequest) }),
-      signal: abortSignal,
+      signal: openRouterSignal(abortSignal),
     })
     const result = await response.json() as JsonObject
     if (!response.ok) {

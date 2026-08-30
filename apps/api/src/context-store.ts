@@ -8,7 +8,7 @@ import { createFamilyContextSearchPrompt, createGuideVideoContextPrompt, createI
 
 const CONTEXT_MODEL = 'gemini-3.5-flash-lite'
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { timeout: 60_000 } })
 // ponytail: process-local creation lock; persist store IDs before horizontally scaling the API.
 const storeNamePromises = new Map<string, Promise<string>>()
 
@@ -188,20 +188,16 @@ export async function ingestGuideContext(ownerEmail: string, input: {
     input.note ? `Family note: ${input.note}` : '',
     input.instructions ? `Written instructions:\n${input.instructions}` : '',
   ].filter(Boolean).join('\n\n')
-  const mediaGuideSummary = [
-    `Guide title: ${input.title}`,
-    input.note ? `Family note: ${input.note}` : '',
-  ].filter(Boolean).join('\n\n')
   const visualRecords = await Promise.all(
     input.images.map(async (image) => ({
       name: image.name,
-      text: await extractImageContext(image.content, image.mimeType, mediaGuideSummary),
+      text: await extractImageContext(image.content, image.mimeType, writtenContext),
     })),
   )
   const videoRecords = await Promise.all(
     input.videos.map(async (video) => ({
       name: video.name,
-      text: await extractGuideVideoContext(video.content, video.mimeType, mediaGuideSummary),
+      text: await extractGuideVideoContext(video.content, video.mimeType, writtenContext),
     })),
   )
   const audioRecords = await Promise.all(

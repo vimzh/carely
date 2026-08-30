@@ -9,8 +9,10 @@ import { DashboardPageHeader } from "@/components/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -66,7 +68,14 @@ export function RemindersManager({
   async function removeReminder(reminderId: string) {
     setDeletingId(reminderId);
     setListError("");
-    const result = await deleteReminder(reminderId);
+    let result;
+    try {
+      result = await deleteReminder(reminderId);
+    } catch {
+      setDeletingId(null);
+      setListError("The reminder could not be deleted. Check your connection and try again.");
+      return;
+    }
     setDeletingId(null);
 
     if (!result.ok) {
@@ -91,7 +100,7 @@ export function RemindersManager({
             }}
           >
             <DialogTrigger asChild>
-              <Button>
+              <Button className="min-h-11">
                 <Plus aria-hidden="true" />
                 New reminder
               </Button>
@@ -192,7 +201,6 @@ export function RemindersManager({
 
       <section aria-labelledby="configured-reminders-title">
         <h2 id="configured-reminders-title" className="sr-only">Configured reminders</h2>
-        {listError && <p className="mt-3 text-sm text-destructive" role="alert">{listError}</p>}
         <ul className="grid gap-2" aria-label="Configured reminders">
           {reminders.map((reminder) => (
             <li
@@ -218,19 +226,61 @@ export function RemindersManager({
                     ?? "No call target selected"}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Remove ${reminder.title}`}
-                disabled={deletingId === reminder.id}
-                onClick={() => removeReminder(reminder.id)}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
+              <Dialog onOpenChange={(nextOpen) => { if (nextOpen) setListError(""); }}>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-lg"
+                    aria-label={`Delete ${reminder.title}`}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="gap-6 p-6 sm:max-w-md sm:p-7" showCloseButton={false}>
+                  <DialogHeader>
+                    <DialogTitle className="text-xl">Delete “{reminder.title}”?</DialogTitle>
+                    <DialogDescription className="leading-6">
+                      This permanently removes the reminder and its call history. This cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  {listError && <p className="text-sm text-destructive" role="alert">{listError}</p>}
+                  <DialogFooter className="mx-0 mb-0 rounded-lg px-0 pb-0">
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline" className="min-h-11" disabled={deletingId === reminder.id}>
+                        Keep reminder
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="min-h-11"
+                      disabled={deletingId === reminder.id}
+                      onClick={() => void removeReminder(reminder.id)}
+                    >
+                      {deletingId === reminder.id ? "Deleting…" : "Delete reminder"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </li>
           ))}
         </ul>
+        {reminders.length === 0 && (
+          <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-border bg-card p-5">
+            <BellRing className="size-5 text-muted-foreground" aria-hidden="true" />
+            <div>
+              <p className="font-medium">No reminders yet</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Add a daily call to help your family member remember an important task.
+              </p>
+            </div>
+            <Button type="button" className="min-h-11" onClick={() => setOpen(true)}>
+              <Plus aria-hidden="true" />
+              Add reminder
+            </Button>
+          </div>
+        )}
       </section>
     </div>
   );

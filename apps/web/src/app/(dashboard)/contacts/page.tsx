@@ -24,7 +24,7 @@ export default async function ContactsPage() {
     <>
       <DashboardPageHeader
         title="Contacts"
-        description="Manage the people Carely supports and who it can call for help."
+        description="Manage the people Carely supports and trusted contacts for family reference."
       />
       <div className="flex flex-col gap-10">
         <CareRecipientsManager initialRecipients={recipients} memoryWarning={memoryWarning} />

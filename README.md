@@ -2,7 +2,7 @@
 
 Carely is a voice companion for older adults who use a basic mobile phone instead of a smartphone. A parent or grandparent can call a familiar number and ask for help with medication reminders, TV instructions, family questions, or everyday tasks in plain language.
 
-Family members configure that experience from a simple dashboard: they add important context, instructions, medication schedules, and emergency contacts without asking the older adult to learn a new app. The project is designed to help families stay supportive when they cannot always answer every call themselves, while keeping the interaction familiar and phone-based for the person receiving care.
+Family members configure that experience from a simple dashboard: they add important context, instructions, medication schedules, and trusted contacts without asking the older adult to learn a new app. The project is designed to help families stay supportive when they cannot always answer every call themselves, while keeping the interaction familiar and phone-based for the person receiving care.
 
 This repository is a Bun monorepo with a Next.js frontend and Hono backend.
 
@@ -43,6 +43,19 @@ https://your-carely-api.example/telephony/twilio/incoming
 Carely validates Twilio's webhook and WebSocket signatures, maps the caller ID to the
 family account, and converts Twilio's bidirectional phone audio for Gemini Live. Twilio's
 number and account credentials are external resources and are not stored in this repository.
+
+## Deployment constraints
+
+The current SQLite and reminder-worker design requires one long-running web instance and
+one long-running API instance, each with a durable data volume. Keep WebSocket traffic on
+the same API instance and set `CARELY_TIME_ZONE` to the care recipient's time zone. Before
+running multiple replicas, move both SQLite databases, voice-session admission, and the
+reminder scheduler to shared durable services. A serverless or multi-replica deployment
+without those changes can lose call state or place duplicate reminder calls.
+
+Production also requires public HTTPS/WSS for the API, `ffprobe` on the API host, matching
+`CARELY_AGENT_SECRET` values, a configured Twilio voice number, and persistent storage for
+guide uploads and conversation records.
 
 - Frontend: http://localhost:3004
 - API: http://localhost:3001

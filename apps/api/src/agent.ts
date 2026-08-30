@@ -20,6 +20,8 @@ const BASIC_QUESTION_PATTERNS = [
   /^(?:what(?:'s| is) (?:the )?(?:current )?date|what day is it|today(?:'s)? date)\b/,
   /^(?:what(?:'s| is) the weather|how(?:'s| is) the weather|weather (?:today|tomorrow))\b/,
   /^(?:calculate\s+)?\d+(?:\.\d+)?\s*[-+*/]\s*\d/,
+  /^(?:what (?:does|is) .+ mean|define .+|.+ ka matlab kya hai|.+ क्या होता है|.+ का मतलब क्या है)$/,
+  /^(?:india mein|भारत में).*(?:family|परिवार)\b/,
 ]
 
 const FAMILY_MEMORY_PATTERNS = [
@@ -34,6 +36,16 @@ const FAMILY_MEMORY_PATTERNS = [
   /\b(?:red|green|blue|yellow|round|square|top|bottom|above|below|next to|beside|left|right)\b.*\b(?:button|light|key|knob|switch|icon|symbol)\b/,
   /(?:टीवी|टेलीविजन|रिमोट|माइक्रोवेव|ओवन|वॉशिंग मशीन|कपड़े धोने की मशीन|एसी|एयर कंडीशनर|उपकरण)/,
   /(?:बटन|घुंडी|नॉब|स्क्रीन|डिस्प्ले|लाइट|निशान|चिह्न|ताला)/,
+  /(?:मेरी|मेरा|मेरे|हमारी|हमारा|मुझे)\s*(?:दवाई?|गोली|खुराक|डोज|दिनचर्या|रूटीन|रिमाइंडर|याद दिलाना)/,
+  /(?:मेरी|मेरा|मुझे).{0,12}(?:पसंद|नापसंद)|(?:मेरे|हमारे|हमारी)\s+(?:परिवार|घर)/,
+  /(?:दवाई?|गोली|खुराक|डोज).{0,24}(?:कब|कितनी|कैसे|समय|लेनी|खानी|ली थी|भूल)/,
+  /(?:मम्मी|माँ|पापा|पिता|दादा|दादी|नाना|नानी|बेटा|बेटी|परिवार).{0,32}(?:पसंद|नापसंद|दवा|दिनचर्या|रूटीन|रिमाइंडर|याद)/,
+  /\b(?:meri|mera|mere|hamari|hamara|mujhe)\s+(?:dawai|dava|medicine|goli|dose|khurak|routine|schedule|reminder)\b/,
+  /\b(?:meri|mera|mujhe)\b.{0,16}\b(?:pasand|napasand)\b|\b(?:mere|hamare|hamari)\s+(?:family|parivar|ghar)\b/,
+  /\b(?:dawai|dava|medicine|goli|dose|khurak)\b.{0,32}\b(?:kab|kitni|kaise|samay|time|leni|khani|li thi|bhool)\b/,
+  /\b(?:mummy|maa|papa|dada|dadi|nana|nani|beta|beti|family)\b.{0,40}\b(?:pasand|napasand|likes?|dislikes?|medicine|dawai|routine|reminder|yaad)\b/,
+  /(?:याद दिलाओ|याद दिलाना|रिमाइंडर).{0,24}(?:मेरी|मुझे|मम्मी|पापा|दादा|दादी|दवा|गोली)/,
+  /\b(?:yaad dila(?:o|na)|reminder)\b.{0,32}\b(?:meri|mujhe|mummy|papa|dada|dadi|medicine|dawai|goli)\b/,
 ]
 
 const APPLIANCE_QUERY_PATTERN = /(?:remote|oven|stove|cooktop|hob|tv|television|ac|air conditioner|microwave|washing machine|appliance|टीवी|टेलीविजन|रिमोट|माइक्रोवेव|ओवन|चूल्हा|वॉशिंग मशीन|कपड़े धोने की मशीन|एसी|एयर कंडीशनर|उपकरण)/i
@@ -71,6 +83,56 @@ export function shouldSearchFamilyContext(query: string) {
   const normalized = query.trim().toLowerCase().replace(/[?!.,]+$/g, '')
   if (!normalized || BASIC_QUESTION_PATTERNS.some((pattern) => pattern.test(normalized))) return false
   return FAMILY_MEMORY_PATTERNS.some((pattern) => pattern.test(normalized))
+}
+
+const HYPOTHETICAL_OR_PAST_EMERGENCY = /\b(?:what if|if (?:i|he|she|they|someone)|in case|yesterday|last night|last week|used to|can breathe now|is fine now)\b|(?:अगर|यदि|क्या हो अगर|कल|पहले|अब ठीक)/i
+const CURRENT_EMERGENCY_PATTERNS = [
+  /\b(?:i|he|she|they|my (?:mother|father|mom|dad|grandmother|grandfather|grandma|grandpa))\b.{0,40}\b(?:can't|cannot|unable to|not able to) breathe\b/i,
+  /\b(?:i am|i'm|he is|she is|they are|my (?:mother|father|mom|dad|grandmother|grandfather|grandma|grandpa) is) choking\b/i,
+  /\b(?:i (?:have|am having)|he|she|they (?:has|have|is having|are having)|my (?:mother|father|mom|dad|grandmother|grandfather|grandma|grandpa) (?:has|is having))\b.{0,24}\b(?:severe chest pain|heavy bleeding)\b/i,
+  /\b(?:i|he|she|they)\b.{0,24}\b(?:fell|have fallen|has fallen)\b.{0,32}\b(?:can't|cannot|unable to) (?:get|stand) up\b/i,
+  /\b(?:there is|there's|we have|my .{0,20} is)\b.{0,24}\b(?:a fire|on fire|gas leak)\b/i,
+  /\b(?:i|he|she|they)\b.{0,24}\b(?:took|swallowed|have taken|has taken)\b.{0,24}\b(?:too many (?:pills?|tablets?)|extra (?:dose|pills?|medicine|medication)|double dose|two doses|wrong dose)\b/i,
+  /(?:मुझे|उसे|मम्मी|पापा|दादा|दादी).{0,32}(?:साँस|सांस) नहीं (?:आ|ले) (?:रही|रहा)|\b(?:mujhe|use|mummy|papa|dada|dadi)\b.{0,32}\bsaans nahi (?:aa|le) (?:rahi|raha)/i,
+  /(?:सीने में तेज दर्द|बहुत खून बह रहा|आग लगी है|गैस लीक)|\b(?:tez chest pain|bahut khoon|aag lagi|gas leak (?:hai|ho rahi))\b/i,
+  /(?:मैं|वह|मम्मी|पापा|दादा|दादी).{0,24}(?:गिर गया|गिर गई).{0,32}(?:उठ नहीं|खड़ा नहीं|खड़ी नहीं)|\b(?:main|woh|mummy|papa|dada|dadi)\b.{0,24}\bgir (?:gaya|gayi)\b.{0,32}\buth nahi/i,
+  /(?:मैंने|उसने|मम्मी ने|पापा ने|दादा ने|दादी ने).{0,24}(?:दो खुराक|दो बार दवा|ज्यादा गोलियाँ|गलत खुराक)|\b(?:maine|usne|mummy ne|papa ne|dada ne|dadi ne)\b.{0,24}\b(?:double dose|extra dose|zyada goli|do baar dawai)/i,
+]
+
+export function urgentSafetyResponse(message: string) {
+  const normalized = message.trim()
+  if (!normalized || HYPOTHETICAL_OR_PAST_EMERGENCY.test(normalized)) return null
+  if (!CURRENT_EMERGENCY_PATTERNS.some((pattern) => pattern.test(normalized))) return null
+  if (/[\u0900-\u097f]|\b(?:saans|dawai|goli|mujhe|mummy|papa|dada|dadi|aag)\b/i.test(normalized)) {
+    return 'अभी स्थानीय आपातकालीन सेवा को फ़ोन कीजिए। अगर आप खुद फ़ोन नहीं कर सकते, पास के किसी भरोसेमंद व्यक्ति को तुरंत बुलाइए। मैं आपकी ओर से कॉल नहीं कर सकती।'
+  }
+  return 'Call local emergency services now. If you cannot make the call, alert a trusted person nearby immediately. I cannot place the call for you.'
+}
+
+type PriorTranscriptEntry = { role: 'assistant' | 'user'; text: string }
+
+export function buildAgentMessageParts(
+  message: string,
+  savedGuides: Array<{ title: string; record: string }>,
+  priorTranscript: PriorTranscriptEntry[] = [],
+) {
+  let remaining = 20_000
+  const boundedHistory = priorTranscript.slice(-40).reverse().flatMap((entry) => {
+    if ((entry.role !== 'user' && entry.role !== 'assistant') || !entry.text.trim() || remaining <= 0) return []
+    const text = entry.text.trim().slice(0, Math.min(remaining, 4_000))
+    remaining -= text.length
+    return [{ role: entry.role, text }]
+  }).reverse()
+  const parts = [{ text: message }]
+  if (boundedHistory.length) {
+    parts.push({ text: `<untrusted_prior_conversation>\n${JSON.stringify(boundedHistory)}\n</untrusted_prior_conversation>` })
+  }
+  if (savedGuides.length) {
+    parts.push({
+      text: `<saved_family_guides>\n${savedGuides.map(({ title, record }) => `Guide: ${title}\n${record}`).join('\n\n')}\n</saved_family_guides>`,
+    })
+  }
+  return parts
 }
 
 const searchFamilyContextTool = new FunctionTool({
@@ -250,8 +312,12 @@ export async function askCarely(
   sessionId = crypto.randomUUID(),
   userId = 'prototype-user',
   providedGuides: Array<{ title: string; record: string }> = [],
+  priorTranscript: PriorTranscriptEntry[] = [],
 ) {
-  await runner.sessionService.getOrCreateSession({ appName: 'carely', userId, sessionId })
+  const urgentResponse = urgentSafetyResponse(message)
+  if (urgentResponse) return { response: urgentResponse, sources: [], actions: [] }
+  const runnerSessionId = priorTranscript.length ? crypto.randomUUID() : sessionId
+  await runner.sessionService.getOrCreateSession({ appName: 'carely', userId, sessionId: runnerSessionId })
   const sources = new Set<string>()
   const actions: ConversationAction[] = []
   const storedGuides = userId !== 'prototype-user' && shouldSearchFamilyContext(message)
@@ -270,16 +336,11 @@ export async function askCarely(
       return [{ title, record: boundedRecord }]
     })
     .slice(0, 8)
-  const parts = [{ text: message }]
-  if (savedGuides.length) {
-    parts.push({
-      text: `<saved_family_guides>\n${savedGuides.map(({ title, record }) => `Guide: ${title}\n${record}`).join('\n\n')}\n</saved_family_guides>`,
-    })
-  }
+  const parts = buildAgentMessageParts(message, savedGuides, priorTranscript)
 
   for await (const event of runner.runAsync({
     userId,
-    sessionId,
+    sessionId: runnerSessionId,
     newMessage: { role: 'user', parts },
     runConfig: { maxLlmCalls: 6 },
   })) {

@@ -35,7 +35,7 @@ const faqs = [
   {
     question: "Is Carely an emergency service?",
     answer:
-      "No. Carely can use the emergency contacts and calling hours you configure, but it is not a replacement for local emergency services or medical care.",
+      "No. Carely can tell the caller to contact local emergency services or a trusted person, but it cannot place that emergency call for them and is not a replacement for medical care.",
   },
 ];
 

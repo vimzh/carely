@@ -95,7 +95,12 @@ export function ConversationLog({ fullPage = false, conversations }: Conversatio
             {conversations.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="py-12 text-center text-sm text-muted-foreground">
-                  No scored conversations yet. Try a message in the testing space to create the first log.
+                  <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
+                    <p>No conversations yet. Test Carely by text or voice to create the first log.</p>
+                    <Button asChild variant="outline" className="min-h-11">
+                      <Link href="/try">Test Carely</Link>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

@@ -179,8 +179,11 @@ export function claimReminderCall(ownerEmail: string, reminderId: string, localD
   const result = database.prepare(`
     INSERT OR IGNORE INTO reminder_calls
       (id, owner_email, reminder_id, local_date, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, 'calling', ?, ?)
-  `).run(id, ownerEmail, reminderId, localDate, now, now);
+    SELECT ?, ?, ?, ?, 'calling', ?, ?
+    WHERE EXISTS (
+      SELECT 1 FROM reminders WHERE owner_email = ? AND id = ?
+    )
+  `).run(id, ownerEmail, reminderId, localDate, now, now, ownerEmail, reminderId);
   return result.changes === 1 ? id : null;
 }
 

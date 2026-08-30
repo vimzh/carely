@@ -430,6 +430,9 @@ app.post('/context/recipient', async (c) => {
   }
 })
 app.post('/agent/message', async (c) => {
+  if (!process.env.CARELY_AGENT_SECRET) return c.json({ error: 'Agent actions are not configured' }, 503)
+  if (!isInternalRequest(c.req.header('authorization'))) return c.json({ error: 'Unauthorized' }, 401)
+
   const body = await c.req.json().catch(() => null)
   const message = body && typeof body === 'object' && 'message' in body ? body.message : null
   const sessionId = body && typeof body === 'object' && 'sessionId' in body ? body.sessionId : null
@@ -446,9 +449,7 @@ app.post('/agent/message', async (c) => {
   if (ownerEmail !== null && (typeof ownerEmail !== 'string' || !ownerEmail.trim() || ownerEmail.length > 320)) {
     return c.json({ error: 'ownerEmail must identify the signed-in family account' }, 400)
   }
-  if (ownerEmail !== null && !isInternalRequest(c.req.header('authorization'))) {
-    return c.json({ error: 'Unauthorized' }, 401)
-  }
+  if (ownerEmail === null) return c.json({ error: 'ownerEmail must identify the signed-in family account' }, 400)
   if (guides !== null && ownerEmail === null) {
     return c.json({ error: 'saved guides require an authenticated family account' }, 400)
   }
@@ -481,7 +482,13 @@ app.post('/agent/message', async (c) => {
   }
 
   try {
-    const result = await askCarely(message.trim(), sessionId ?? undefined, ownerEmail?.trim().toLowerCase(), providedGuides)
+    const result = await askCarely(
+      message.trim(),
+      sessionId ?? undefined,
+      ownerEmail?.trim().toLowerCase(),
+      providedGuides,
+      normalizedTranscript?.transcript.slice(0, -1) ?? [],
+    )
     try {
       const review = await reviewConversation({
         transcript: [

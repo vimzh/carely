@@ -1,4 +1,4 @@
-// Family contact setup form and a small emergency contact list.
+// Family contact setup form and a small trusted-contact list.
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -75,7 +75,7 @@ export function ContactsManager({ initialContacts }: { initialContacts: Contact[
               Can provide help
             </h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Family members Carely may call for help in an emergency.
+              Trusted people saved for family reference. Carely does not place emergency calls.
             </p>
           </div>
           <Dialog open={open} onOpenChange={(nextOpen) => { setOpen(nextOpen); if (!nextOpen) setError(""); }}>
@@ -134,7 +134,7 @@ export function ContactsManager({ initialContacts }: { initialContacts: Contact[
                 <fieldset className="grid gap-2">
                   <legend className="text-sm font-medium">Emergency calling hours</legend>
                   <p className="text-xs text-muted-foreground">
-                    Choose when Carely may call this person in an emergency.
+                    Save when this person is normally available to help.
                   </p>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2 text-sm font-medium" htmlFor="contact-emergency-from">
@@ -177,7 +177,7 @@ export function ContactsManager({ initialContacts }: { initialContacts: Contact[
           ))}
         </ul>
         {contacts.length === 0 && (
-          <p className="mt-4 text-sm text-muted-foreground">No emergency contacts added yet.</p>
+          <p className="mt-4 text-sm text-muted-foreground">No trusted contacts added yet.</p>
         )}
       </section>
     </div>

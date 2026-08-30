@@ -8,5 +8,10 @@
     "build": "bun run --filter '*' build",
     "lint": "bun run --filter '*' lint",
     "typecheck": "bun run --filter '*' typecheck"
+  },
+  "overrides": {
+    "@opentelemetry/core": "2.10.0",
+    "adm-zip": "0.6.0",
+    "uuid": "11.1.1"
   }
 }

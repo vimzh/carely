@@ -13,3 +13,8 @@ bun run dev
 ```
 
 The API starts at http://localhost:3001.
+
+Deploy the API as one long-running instance with a durable `CARELY_API_DATABASE_PATH` and
+WebSocket support. Voice admission is stored locally, so do not add API replicas until that
+state is moved to shared storage. The web app likewise needs one long-running instance and
+a durable data volume while it owns SQLite and the reminder scheduler.

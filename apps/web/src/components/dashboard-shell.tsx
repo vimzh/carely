@@ -2,9 +2,9 @@
 "use client";
 
 import Link from "next/link";
-import { BellRing, BookOpenText, ContactRound, Home, MessageSquareText, Play } from "lucide-react";
+import { BellRing, BookOpenText, ContactRound, Home, MessageSquareText, Play, WifiOff } from "lucide-react";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 
 import { ProfileDialog } from "@/components/profile-dialog";
 import AIOrbFace from "@/components/smoothui/ai-orb-face";
@@ -32,8 +32,17 @@ const navItems = [
   { label: "Reminders", href: "/reminders", icon: BellRing },
   { label: "Guides", href: "/guides", icon: BookOpenText },
   { label: "Logs", href: "/logs", icon: MessageSquareText },
-  { label: "Try", href: "/try", icon: Play },
+  { label: "Test Carely", href: "/try", icon: Play },
 ];
+
+function subscribeToConnection(callback: () => void) {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () => {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
 
 function DesktopSidebarReopenButton() {
   const { state } = useSidebar();
@@ -70,6 +79,7 @@ export function DashboardShell({
 }) {
   const pathname = usePathname();
   const isPlayground = pathname === "/try";
+  const isOnline = useSyncExternalStore(subscribeToConnection, () => navigator.onLine, () => true);
 
   return (
     <SidebarProvider>
@@ -107,7 +117,7 @@ export function DashboardShell({
                         asChild
                         isActive={isActive}
                         tooltip={label}
-                        className={label === "Try" ? "mt-3 bg-green/10 hover:bg-green/15 data-[active=true]:bg-green/20 [&_svg]:text-green-hover" : undefined}
+                        className={href === "/try" ? "mt-3 bg-green/10 hover:bg-green/15 data-[active=true]:bg-green/20 [&_svg]:text-green-hover" : undefined}
                       >
                         <Link href={href} aria-current={isActive ? "page" : undefined}>
                           <Icon aria-hidden="true" />
@@ -130,6 +140,16 @@ export function DashboardShell({
 
       <SidebarInset>
         <DesktopSidebarReopenButton />
+        {!isOnline && (
+          <div
+            className="flex min-h-11 items-center justify-center gap-2 border-b border-amber/40 bg-amber/15 px-4 py-2 text-center text-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <WifiOff className="size-4 shrink-0" aria-hidden="true" />
+            <span>You’re offline. Carely will not send or save changes until you reconnect.</span>
+          </div>
+        )}
         <header className="flex h-14 items-center border-b px-4 md:hidden">
           <SidebarTrigger />
           <span className="ml-2 text-sm font-medium">

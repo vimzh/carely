@@ -54,12 +54,13 @@ export function buildReminderTwiML(
   deliveryId: string,
   publicUrl: string | null,
 ) {
-  const message = `This is Carely with your reminder: ${reminder.title}. ${reminder.context} When you are done, say done. If you need help, say help.`;
+  const message = `Carely की तरफ से याद दिलाने के लिए फोन है: ${reminder.title}. ${reminder.context} पूरा होने पर हो गया कहिए। मदद चाहिए तो मदद कहिए।`;
+  const say = (value: string) => `<Say language="hi-IN">${escapeXml(value)}</Say>`;
   if (!publicUrl) {
-    return `<Response><Say>${escapeXml(message)}</Say></Response>`;
+    return `<Response>${say(message)}</Response>`;
   }
 
   const actionUrl = new URL("/api/reminders/reply", publicUrl);
   actionUrl.searchParams.set("deliveryId", deliveryId);
-  return `<Response><Gather input="speech" action="${escapeXml(actionUrl.toString())}" method="POST" speechTimeout="auto" timeout="8"><Say>${escapeXml(message)}</Say></Gather><Say>I did not hear an answer. Please call Carely again if you need help.</Say></Response>`;
+  return `<Response><Gather input="speech" language="hi-IN" action="${escapeXml(actionUrl.toString())}" method="POST" speechTimeout="auto" timeout="8">${say(message)}</Gather>${say("मुझे जवाब सुनाई नहीं दिया। मदद चाहिए तो Carely को दोबारा फोन कीजिए।")}</Response>`;
 }

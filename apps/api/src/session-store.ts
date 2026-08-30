@@ -22,6 +22,22 @@ database.exec(`
     recipient_name TEXT,
     created_at TEXT NOT NULL
   ) STRICT;
+
+  DELETE FROM agent_sessions
+  WHERE expires_at <= unixepoch('subsec') * 1000;
+
+  DELETE FROM agent_sessions
+  WHERE call_sid IS NOT NULL
+    AND rowid NOT IN (
+      SELECT MAX(rowid)
+      FROM agent_sessions
+      WHERE call_sid IS NOT NULL
+      GROUP BY call_sid
+    );
+
+  CREATE UNIQUE INDEX IF NOT EXISTS agent_sessions_call_sid_unique
+  ON agent_sessions(call_sid)
+  WHERE call_sid IS NOT NULL;
 `)
 
 function toSession(row: Record<string, unknown>): AgentSession {
@@ -43,6 +59,7 @@ export function createAgentSession(input: Omit<AgentSession, 'id'>) {
     INSERT INTO agent_sessions
       (id, kind, owner_email, expires_at, call_sid, recipient_id, recipient_name, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(call_sid) WHERE call_sid IS NOT NULL DO NOTHING
   `).run(
     session.id,
     session.kind,
@@ -53,7 +70,10 @@ export function createAgentSession(input: Omit<AgentSession, 'id'>) {
     session.recipientName,
     new Date().toISOString(),
   )
-  return session
+  if (!session.callSid) return session
+  const row = database.prepare('SELECT * FROM agent_sessions WHERE call_sid = ?').get(session.callSid) as Record<string, unknown> | null
+  if (!row) throw new Error('Could not persist telephone session')
+  return toSession(row)
 }
 
 export function readAgentSession(sessionId: string) {

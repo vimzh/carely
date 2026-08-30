@@ -214,7 +214,7 @@ export function ContactCard({
             <DialogHeader>
               <DialogTitle>Delete {contact.name}?</DialogTitle>
               <DialogDescription>
-                Carely will no longer call {contact.name} for help in an emergency. This cannot be undone.
+                {contact.name} will be removed from the family&apos;s trusted contacts. This cannot be undone.
               </DialogDescription>
             </DialogHeader>
             {deleteError && <p className="text-sm text-destructive" role="alert">{deleteError}</p>}

@@ -7,6 +7,7 @@ import { LoaderCircle } from "lucide-react";
 import { sendAgentMessage } from "@/app/(dashboard)/try/actions";
 import { AgentChatComposer } from "@/components/agent-chat-composer";
 import AgentAvatar from "@/components/smoothui/agent-avatar";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VoiceCall } from "@/components/voice-call";
 
@@ -16,35 +17,49 @@ type ChatMessage = {
   content: string;
 };
 
+type PendingChatRequest = {
+  message: string;
+  transcript: Array<{ role: "assistant" | "user"; text: string }>;
+};
+
 export function AgentPlayground() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState("");
   const [answering, setAnswering] = useState(false);
   const [chatError, setChatError] = useState("");
+  const [failedRequest, setFailedRequest] = useState<PendingChatRequest | null>(null);
   const sessionId = useRef<string | null>(null);
 
-  async function send(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    const cleanMessage = message.trim();
-    if (!cleanMessage || answering) return;
-
-    setMessages((current) => [
-      ...current,
-      { id: crypto.randomUUID(), role: "user", content: cleanMessage },
-    ]);
+  async function requestAnswer(request: PendingChatRequest, appendUserMessage: boolean) {
+    if (appendUserMessage) {
+      setMessages((current) => [
+        ...current,
+        { id: crypto.randomUUID(), role: "user", content: request.message },
+      ]);
+    }
     setMessage("");
     setChatError("");
+    setFailedRequest(null);
     setAnswering(true);
     sessionId.current ??= crypto.randomUUID();
-    const transcript = [
-      ...messages.map(({ role, content }) => ({ role, text: content })),
-      { role: "user" as const, text: cleanMessage },
-    ];
-    const result = await sendAgentMessage({ message: cleanMessage, sessionId: sessionId.current, transcript });
+    let result;
+    try {
+      result = await sendAgentMessage({
+        message: request.message,
+        sessionId: sessionId.current,
+        transcript: request.transcript,
+      });
+    } catch {
+      setAnswering(false);
+      setChatError("Carely could not answer. Check your connection, then retry the same question.");
+      setFailedRequest(request);
+      return;
+    }
     setAnswering(false);
 
     if (!result.ok) {
       setChatError(result.error);
+      setFailedRequest(request);
       return;
     }
 
@@ -54,12 +69,27 @@ export function AgentPlayground() {
     ]);
   }
 
+  function send(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    const cleanMessage = message.trim();
+    if (!cleanMessage || answering) return;
+
+    const request: PendingChatRequest = {
+      message: cleanMessage,
+      transcript: [
+        ...messages.map(({ role, content }) => ({ role, text: content })),
+        { role: "user", text: cleanMessage },
+      ],
+    };
+    void requestAnswer(request, true);
+  }
+
   return (
     <Tabs
       defaultValue="text"
       className="flex h-[calc(100svh-3.5rem)] min-h-0 flex-1 flex-col bg-paper-white md:h-svh"
     >
-      <h1 className="sr-only">Try Carely</h1>
+      <h1 className="sr-only">Test Carely</h1>
 
       <div className="flex shrink-0 justify-center px-5 pt-5 sm:pt-7">
         <TabsList aria-label="Choose how to test Carely" className="w-60">
@@ -108,7 +138,22 @@ export function AgentPlayground() {
               value={message}
               onValueChange={setMessage}
             />
-            {chatError && <p id="chat-error" className="mt-2 text-sm text-destructive" role="alert">{chatError}</p>}
+            {chatError && (
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <p id="chat-error" className="text-sm text-destructive" role="alert">{chatError}</p>
+                {failedRequest && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11"
+                    disabled={answering}
+                    onClick={() => void requestAnswer(failedRequest, false)}
+                  >
+                    Retry question
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </form>
       </TabsContent>

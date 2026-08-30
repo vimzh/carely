@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Plus } from "lucide-react";
+import { Plus, UserRoundPlus } from "lucide-react";
 
 import {
   createCareRecipient,
@@ -91,7 +91,7 @@ export function CareRecipientsManager({
           }}
         >
           <DialogTrigger asChild>
-            <Button className="shrink-0">
+            <Button className="min-h-11 shrink-0">
               <Plus aria-hidden="true" />
               Add person
             </Button>
@@ -158,6 +158,21 @@ export function CareRecipientsManager({
           </li>
         ))}
       </ul>
+      {recipients.length === 0 && (
+        <div className="mt-4 flex flex-col items-start gap-3 rounded-md border border-dashed border-border bg-card p-5">
+          <UserRoundPlus className="size-5 text-muted-foreground" aria-hidden="true" />
+          <div>
+            <p className="font-medium">No care recipient yet</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Add the parent or grandparent Carely should remember and support.
+            </p>
+          </div>
+          <Button type="button" className="min-h-11" onClick={() => setOpen(true)}>
+            <Plus aria-hidden="true" />
+            Add person
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

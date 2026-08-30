@@ -55,7 +55,10 @@ export async function pumpCarelyVoice(
   let outputTranscript = ''
   for await (const event of streamCarelyVoice(sessionId, ownerEmail, queue, signal)) {
     if (event.errorCode) throw new Error(event.errorMessage || event.errorCode)
-    if (event.interrupted) handlers.onInterrupted()
+    if (event.interrupted) {
+      outputTranscript = ''
+      handlers.onInterrupted()
+    }
     const previousSourceCount = sources.size
     const previousActionCount = actions.length
     collectConversationEvidence(event, sources, actions)
@@ -64,7 +67,7 @@ export async function pumpCarelyVoice(
     const inputText = event.inputTranscription?.text ?? ''
     const outputText = event.outputTranscription?.text ?? ''
     inputTranscript = mergeTranscription(inputTranscript, inputText)
-    outputTranscript = mergeTranscription(outputTranscript, outputText)
+    if (!event.interrupted) outputTranscript = mergeTranscription(outputTranscript, outputText)
     if (event.inputTranscription?.finished && inputTranscript.trim()) {
       handlers.onTranscript({ role: 'user', text: inputTranscript.trim() })
       inputTranscript = ''

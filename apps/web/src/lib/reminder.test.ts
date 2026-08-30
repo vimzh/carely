@@ -36,10 +36,13 @@ describe("reminder validation", () => {
       { time: "9:00 PM", timeZone: "Asia/Kolkata" },
       new Date("2026-08-24T15:30:00.000Z"),
     )).toBe(true);
-    expect(buildReminderTwiML(
+    const twiml = buildReminderTwiML(
       { title: "Evening medicine", context: "Take <one> & rest." },
       "delivery-id",
       null,
-    )).toContain("Take &lt;one&gt; &amp; rest.");
+    );
+    expect(twiml).toContain("Take &lt;one&gt; &amp; rest.");
+    expect(twiml).toContain('language="hi-IN"');
+    expect(twiml).toContain("मदद चाहिए तो मदद कहिए");
   });
 });

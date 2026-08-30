@@ -1,19 +1,21 @@
 // Verifies that the agent endpoint rejects malformed requests before calling Gemini.
 import { createHmac } from 'node:crypto'
 
-import { expect, test } from 'bun:test'
+import { expect, spyOn, test } from 'bun:test'
 
 process.env.GEMINI_API_KEY ??= 'test-key'
-process.env.CARELY_AGENT_SECRET ??= 'test-agent-secret'
+process.env.CARELY_AGENT_SECRET = 'test-agent-secret'
 process.env.CARELY_API_DATABASE_PATH ??= ':memory:'
 process.env.TWILIO_AUTH_TOKEN ??= 'test-twilio-token'
 
 const { app, isGeminiAccessDeniedError, isGeminiQuotaError, normalizeContextMimeType } = await import('./index')
-const { collectConversationEvidence, sanitizeCallerFacingText, selectRelevantGuides, shouldSearchFamilyContext } = await import('./agent')
+const agentModule = await import('./agent')
+const { collectConversationEvidence, sanitizeCallerFacingText, selectRelevantGuides, shouldSearchFamilyContext } = agentModule
 const { familyStoreDisplayName } = await import('./context-store')
 const { resolveRecipientLocation, saveRecipientLocation, searchNearbyPlaces } = await import('./nearby-places')
 const { readAgentSession } = await import('./session-store')
-const { parseConversationReview } = await import('./conversation-review')
+const conversationReviewModule = await import('./conversation-review')
+const { parseConversationReview } = conversationReviewModule
 const { mergeTranscription } = await import('./voice')
 const { CARELY_TEXT_INSTRUCTION, CARELY_VOICE_INSTRUCTION, createFamilyContextSearchPrompt, createGuideVideoContextPrompt, createImageContextPrompt } = await import('./prompts/carely')
 const { buildConnectedCallTwiML, twilioMediaUrl, validateTwilioWebhook } = await import('./twilio')
@@ -315,7 +317,7 @@ test('coordinates image controls with the family-written guide', () => {
 test('rejects an empty agent message', async () => {
   const response = await app.request('/agent/message', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { ...contextHeaders, 'content-type': 'application/json' },
     body: '{}',
   })
 
@@ -325,17 +327,64 @@ test('rejects an empty agent message', async () => {
   })
 })
 
+test('passes validated prior turns to the agent without duplicating the current message', async () => {
+  const askCarely = spyOn(agentModule, 'askCarely').mockResolvedValue({
+    response: 'Use the Input button.',
+    sources: [],
+    actions: [],
+  })
+  const reviewConversation = spyOn(conversationReviewModule, 'reviewConversation')
+    .mockRejectedValue(new Error('Skip provider review in this route test.'))
+
+  try {
+    const response = await app.request('/agent/message', {
+      method: 'POST',
+      headers: { ...contextHeaders, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        message: 'What should I press next?',
+        ownerEmail: 'family@example.com',
+        sessionId: 'conversation-1',
+        transcript: [
+          { role: 'user', text: 'The TV says No signal.' },
+          { role: 'assistant', text: 'Which screen option is highlighted?' },
+          { role: 'user', text: 'What should I press next?' },
+        ],
+      }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(askCarely).toHaveBeenCalledTimes(1)
+    expect(askCarely.mock.calls[0]?.[4]).toEqual([
+      { role: 'user', text: 'The TV says No signal.' },
+      { role: 'assistant', text: 'Which screen option is highlighted?' },
+    ])
+  } finally {
+    askCarely.mockRestore()
+    reviewConversation.mockRestore()
+  }
+})
+
 test('rejects caller-supplied guides without a family account', async () => {
   const response = await app.request('/agent/message', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { ...contextHeaders, 'content-type': 'application/json' },
     body: JSON.stringify({
       message: 'Help with my TV',
       guides: [{ title: 'TV', record: 'Press Input.' }],
     }),
   })
   expect(response.status).toBe(400)
-  expect(await response.json()).toEqual({ error: 'saved guides require an authenticated family account' })
+  expect(await response.json()).toEqual({ error: 'ownerEmail must identify the signed-in family account' })
+})
+
+test('rejects an unauthenticated agent message before calling a provider', async () => {
+  const response = await app.request('/agent/message', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ message: 'Hello', ownerEmail: 'family@example.com' }),
+  })
+  expect(response.status).toBe(401)
+  expect(await response.json()).toEqual({ error: 'Unauthorized' })
 })
 
 test('recognizes Gemini quota errors without exposing other provider failures', () => {
@@ -450,8 +499,8 @@ test('normalizes common media MIME aliases', async () => {
 test('rejects malformed conversation session IDs', async () => {
   const response = await app.request('/agent/message', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ message: 'Hello', sessionId: '../shared' }),
+    headers: { ...contextHeaders, 'content-type': 'application/json' },
+    body: JSON.stringify({ message: 'Hello', sessionId: '../shared', ownerEmail: 'family@example.com' }),
   })
 
   expect(response.status).toBe(400)

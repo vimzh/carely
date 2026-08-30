@@ -26,6 +26,21 @@ const STATUS_COPY: Record<CallState, string> = {
   speaking: "Carely is speaking",
 };
 
+function callErrorMessage(cause: unknown) {
+  if (cause instanceof DOMException) {
+    if (cause.name === "NotAllowedError" || cause.name === "SecurityError") {
+      return "Microphone access is blocked. Allow it in this site’s browser settings, then retry.";
+    }
+    if (cause.name === "NotFoundError") {
+      return "No microphone was found. Connect one or choose another input, then retry.";
+    }
+    if (cause.name === "NotReadableError" || cause.name === "AbortError") {
+      return "The microphone is busy or unavailable. Close other apps using it, then retry.";
+    }
+  }
+  return cause instanceof Error ? cause.message : "Could not start the voice test. Check your connection, then retry.";
+}
+
 export function VoiceCall() {
   const [state, setState] = useState<CallState>("idle");
   const [error, setError] = useState("");
@@ -61,6 +76,12 @@ export function VoiceCall() {
     transcriptRef.current = [];
     sourcesRef.current = [];
     actionsRef.current = [];
+
+    if (typeof AudioContext === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setError("Voice testing is unavailable in this browser. Use a current browser over HTTPS, then retry.");
+      setState("error");
+      return;
+    }
 
     try {
       const result = await startVoiceCall();
@@ -112,7 +133,7 @@ export function VoiceCall() {
         }
       };
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not start the voice call.");
+      setError(callErrorMessage(cause));
       await endCall("error");
     }
   }
@@ -145,7 +166,7 @@ export function VoiceCall() {
       ) : (
         <Button type="button" className="min-h-11" onClick={() => void startCall()}>
           <Mic aria-hidden="true" />
-          Start voice test
+          {state === "error" ? "Retry voice test" : "Start voice test"}
         </Button>
       )}
       {error && <p className="max-w-sm text-sm text-destructive" role="alert">{error}</p>}
