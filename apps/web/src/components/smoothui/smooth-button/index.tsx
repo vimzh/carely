@@ -1,6 +1,6 @@
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -176,9 +176,9 @@ function SmoothButton({
   // are not injected (single-child contract of Radix Slot).
   if (asChild) {
     return (
-      <Slot className={classes} ref={ref} {...props}>
+      <Slot.Root className={classes} ref={ref} {...props}>
         {children}
-      </Slot>
+      </Slot.Root>
     );
   }
 

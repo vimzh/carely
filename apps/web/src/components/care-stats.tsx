@@ -1,12 +1,13 @@
 // Simple family-facing activity totals for the home page.
 import { Card, CardContent } from "@/components/ui/card";
+import type { CareStats as CareStatsData } from "@/lib/calls-db";
 
-const stats = [
-  { label: "Calls answered", value: "0" },
-  { label: "Minutes talked", value: "0 min" },
-];
+export function CareStats({ callsAnswered, minutesTalked }: CareStatsData) {
+  const stats = [
+    { label: "Calls answered", value: String(callsAnswered) },
+    { label: "Minutes talked", value: `${minutesTalked} min` },
+  ];
 
-export function CareStats() {
   return (
     <div className="grid w-full gap-4 sm:grid-cols-2" aria-label="Carely activity">
       {stats.map(({ label, value }) => (

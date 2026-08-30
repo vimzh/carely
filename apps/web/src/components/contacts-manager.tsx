@@ -4,7 +4,12 @@
 import { useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 
-import { ContactCard, type Contact } from "@/components/contact-card";
+import {
+  createContact,
+  deleteContact as removeContact,
+  updateContact as saveContact,
+} from "@/app/(dashboard)/contacts/actions";
+import { ContactCard } from "@/components/contact-card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,35 +20,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { Contact, ContactInput } from "@/lib/contact";
 
-const initialContacts: Contact[] = [
-  {
-    id: "vansh",
-    name: "Vansh",
-    relationship: "Primary contact",
-    phone: "7982538137",
-    emergencyFrom: "09:00",
-    emergencyUntil: "21:00",
-  },
-  {
-    id: "mom",
-    name: "Mom",
-    relationship: "Parent",
-    phone: "",
-    emergencyFrom: "",
-    emergencyUntil: "",
-  },
-  {
-    id: "uncle-raj",
-    name: "Uncle Raj",
-    relationship: "Family",
-    phone: "",
-    emergencyFrom: "",
-    emergencyUntil: "",
-  },
-];
-
-export function ContactsManager() {
+export function ContactsManager({ initialContacts }: { initialContacts: Contact[] }) {
   const [contacts, setContacts] = useState(initialContacts);
   const [name, setName] = useState("");
   const [relationship, setRelationship] = useState("");
@@ -51,20 +30,20 @@ export function ContactsManager() {
   const [emergencyFrom, setEmergencyFrom] = useState("");
   const [emergencyUntil, setEmergencyUntil] = useState("");
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  function addContact(event: FormEvent<HTMLFormElement>) {
+  async function addContact(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setContacts((current) => [
-      ...current,
-      {
-        id: `${name}-${phone}`,
-        name: name.trim(),
-        relationship: relationship.trim() || "Family",
-        phone: phone.trim(),
-        emergencyFrom,
-        emergencyUntil,
-      },
-    ]);
+    setSaving(true);
+    setError("");
+    const result = await createContact({ name, relationship, phone, emergencyFrom, emergencyUntil });
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setContacts((current) => [...current, result.contact]);
     setName("");
     setRelationship("");
     setPhone("");
@@ -73,34 +52,42 @@ export function ContactsManager() {
     setOpen(false);
   }
 
-  function updateContact(contactId: string, updates: Partial<Contact>) {
-    setContacts((current) =>
-      current.map((contact) => (contact.id === contactId ? { ...contact, ...updates } : contact)),
-    );
+  async function updateContact(contactId: string, updates: Partial<ContactInput>) {
+    const result = await saveContact(contactId, updates);
+    if (!result.ok) return result.error;
+    setContacts((current) => current.map((contact) => (contact.id === contactId ? result.contact : contact)));
+    return null;
+  }
+
+  async function deleteContact(contactId: string) {
+    const result = await removeContact(contactId);
+    if (!result.ok) return result.error;
+    setContacts((current) => current.filter((contact) => contact.id !== contactId));
+    return null;
   }
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-6">
-      <section aria-labelledby="family-contacts-title">
+    <div className="flex w-full flex-col gap-6">
+      <section aria-labelledby="helpers-title">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="family-contacts-title" className="text-2xl font-semibold tracking-tight">
-              Family contacts
+            <h2 id="helpers-title" className="text-2xl font-semibold tracking-tight">
+              Can provide help
             </h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              People Carely can call when they are configured.
+              Family members Carely may call for help in an emergency.
             </p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(nextOpen) => { setOpen(nextOpen); if (!nextOpen) setError(""); }}>
             <DialogTrigger asChild>
               <Button className="shrink-0">
                 <Plus aria-hidden="true" />
-                Add contact
+                Add helper
               </Button>
             </DialogTrigger>
             <DialogContent className="gap-6 p-6 sm:max-w-lg sm:p-7">
               <DialogHeader>
-                <DialogTitle className="text-2xl">Add a family contact</DialogTitle>
+                <DialogTitle className="text-2xl">Add someone who can help</DialogTitle>
                 <DialogDescription className="leading-6">
                   Carely can reach these people in an emergency during the hours you choose.
                 </DialogDescription>
@@ -111,6 +98,8 @@ export function ContactsManager() {
                     Name
                     <Input
                       id="contact-name"
+                      name="name"
+                      autoComplete="name"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
                       placeholder="e.g. Vansh"
@@ -121,6 +110,7 @@ export function ContactsManager() {
                     Relationship
                     <Input
                       id="contact-relationship"
+                      name="relationship"
                       value={relationship}
                       onChange={(event) => setRelationship(event.target.value)}
                       placeholder="e.g. Son"
@@ -131,7 +121,10 @@ export function ContactsManager() {
                   Phone number
                   <Input
                     id="contact-phone"
+                    name="phone"
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
                     placeholder="e.g. 7982538137"
@@ -148,6 +141,7 @@ export function ContactsManager() {
                       From
                       <Input
                         id="contact-emergency-from"
+                        name="emergencyFrom"
                         type="time"
                         value={emergencyFrom}
                         onChange={(event) => setEmergencyFrom(event.target.value)}
@@ -158,6 +152,7 @@ export function ContactsManager() {
                       Until
                       <Input
                         id="contact-emergency-until"
+                        name="emergencyUntil"
                         type="time"
                         value={emergencyUntil}
                         onChange={(event) => setEmergencyUntil(event.target.value)}
@@ -166,20 +161,24 @@ export function ContactsManager() {
                     </label>
                   </div>
                 </fieldset>
-                <Button type="submit" className="w-fit">
-                  Add contact
+                {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+                <Button type="submit" className="w-fit" disabled={saving}>
+                  {saving ? "Adding helper…" : "Add helper"}
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
         </div>
-        <ul className="mt-4 grid gap-2" aria-label="Configured family contacts">
+        <ul className="mt-4 grid gap-2" aria-label="People who can provide help">
           {contacts.map((contact) => (
             <li key={contact.id}>
-              <ContactCard contact={contact} onUpdate={updateContact} />
+              <ContactCard contact={contact} onUpdate={updateContact} onDelete={deleteContact} />
             </li>
           ))}
         </ul>
+        {contacts.length === 0 && (
+          <p className="mt-4 text-sm text-muted-foreground">No emergency contacts added yet.</p>
+        )}
       </section>
     </div>
   );

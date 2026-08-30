@@ -52,6 +52,9 @@ export default function Home() {
       >
         <LandingNavbar />
         <HeroContent />
+        <p className="absolute inset-x-0 bottom-6 z-10 text-center text-xs text-muted-foreground sm:bottom-8">
+          powered by Google&apos;s Gemini 3.5
+        </p>
       </section>
       <LandingUseCases />
       <LandingInspiration />

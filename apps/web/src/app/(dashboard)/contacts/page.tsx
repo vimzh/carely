@@ -1,9 +1,35 @@
-import { ContactsManager } from "@/components/contacts-manager";
+import { redirect } from "next/navigation";
 
-export default function ContactsPage() {
+import { auth } from "@/auth";
+import { CareRecipientsManager } from "@/components/care-recipients-manager";
+import { ContactsManager } from "@/components/contacts-manager";
+import { DashboardPageHeader } from "@/components/dashboard-page-header";
+import { syncPendingCareRecipientMemory } from "@/lib/care-recipient-memory";
+import { listCareRecipients, listContacts } from "@/lib/contacts-db";
+
+export default async function ContactsPage() {
+  const session = await auth();
+  const ownerEmail = session?.user?.email?.trim().toLowerCase();
+  if (!ownerEmail) redirect("/");
+  const recipients = listCareRecipients(ownerEmail);
+  let memoryWarning: string | undefined;
+  try {
+    await syncPendingCareRecipientMemory(ownerEmail);
+  } catch (error) {
+    console.error("Could not synchronize care-recipient memory", error);
+    memoryWarning = "Carely could not update agent memory. Your saved profiles are still safe; try again shortly.";
+  }
+
   return (
-    <main className="flex min-h-[calc(100svh-3.5rem)] items-start justify-center p-6 sm:p-10">
-      <ContactsManager />
-    </main>
+    <>
+      <DashboardPageHeader
+        title="Contacts"
+        description="Manage the people Carely supports and who it can call for help."
+      />
+      <div className="flex flex-col gap-10">
+        <CareRecipientsManager initialRecipients={recipients} memoryWarning={memoryWarning} />
+        <ContactsManager initialContacts={listContacts(ownerEmail)} />
+      </div>
+    </>
   );
 }

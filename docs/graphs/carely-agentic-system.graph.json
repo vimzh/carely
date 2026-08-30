@@ -1,0 +1,115 @@
+{
+  "title": "How Carely learns and answers",
+  "subtitle": "Guide files become keyed family memory; a retrieval gate decides whether each text or voice question needs it",
+  "description": "Flowchart showing Carely guide ingestion, multimodal understanding, Gemini File Search memory, the default-deny retrieval gate, Google Search, text and voice agents, and the final elder-friendly answer.",
+  "footer": "Family memory is read only during conversations and is skipped for basic or general questions.",
+  "zones": [
+    {"id": "teach", "label": "1 · THE FAMILY TEACHES CARELY", "tone": "blue", "width": 1.15},
+    {"id": "decide", "label": "2 · MEMORY + RETRIEVAL DECISION", "tone": "violet", "width": 1.35},
+    {"id": "answer", "label": "3 · CARELY ANSWERS", "tone": "green", "width": 1.2}
+  ],
+  "nodes": [
+    {
+      "id": "guide",
+      "zone": "teach",
+      "title": "A child adds a guide",
+      "body": ["written steps · PDFs · notes", "images · audio · one short video"],
+      "note": "Type, size, and video length are checked first",
+      "status": "external",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/web/src/app/(dashboard)/guides/actions.ts", "apps/api/src/index.ts"]
+    },
+    {
+      "id": "understand",
+      "zone": "teach",
+      "title": "Media becomes usable guidance",
+      "body": ["images map visible controls", "audio and video become ordered context"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 2,
+      "span": 2,
+      "evidence": ["apps/api/src/context-store.ts", "apps/api/src/prompts/carely.ts"]
+    },
+    {
+      "id": "forget",
+      "zone": "teach",
+      "title": "Edits replace; deletes forget",
+      "body": ["the same guide key identifies its slice"],
+      "note": "Old matching documents are removed after replacement",
+      "status": "implemented",
+      "size": "standard",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/web/src/app/(dashboard)/guides/actions.ts", "apps/api/src/context-store.ts"]
+    },
+    {
+      "id": "memory",
+      "zone": "decide",
+      "title": "Gemini File Search holds context",
+      "body": ["care profiles + guides + native documents · keyed by source"],
+      "note": "Each signed-in family has an isolated File Search store",
+      "status": "external",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/api/src/context-store.ts"]
+    },
+    {
+      "id": "gate",
+      "zone": "decide",
+      "title": "Every question passes a retrieval gate",
+      "body": ["basic or general → skip memory", "family-specific → retrieve relevant context"],
+      "note": "Time, date, arithmetic, weather, and greetings never touch family memory",
+      "status": "implemented",
+      "size": "wide",
+      "row": 2,
+      "span": 2,
+      "evidence": ["apps/api/src/agent.ts", "apps/api/src/index.test.ts"]
+    },
+    {
+      "id": "web",
+      "zone": "answer",
+      "title": "Current public facts can use Google Search",
+      "body": ["weather · news · public services"],
+      "note": "Used only when the answer depends on current facts",
+      "status": "external",
+      "size": "standard",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/api/src/agent.ts", "apps/api/src/prompts/carely.ts"]
+    },
+    {
+      "id": "agent",
+      "zone": "answer",
+      "title": "Google ADK runs the text or live voice agent",
+      "body": ["Gemini follows the elder-friendly prompt", "retrieved facts stay reference data"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 2,
+      "span": 2,
+      "evidence": ["apps/api/src/agent.ts", "apps/api/src/prompts/carely.ts"]
+    },
+    {
+      "id": "response",
+      "zone": "answer",
+      "title": "The elder gets a calm answer",
+      "body": ["one idea at a time · simple language", "missing family or medicine details are not invented"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/api/src/prompts/carely.ts", "apps/api/src/index.ts", "apps/api/src/voice.ts"]
+    }
+  ],
+  "edges": [
+    {"from": "guide", "to": "understand", "tone": "blue", "route": "vertical"},
+    {"from": "understand", "to": "memory", "tone": "violet", "route": "orthogonal"},
+    {"from": "forget", "to": "memory", "tone": "rose", "route": "orthogonal"},
+    {"from": "memory", "to": "gate", "tone": "violet", "route": "vertical"},
+    {"from": "gate", "to": "agent", "tone": "green", "route": "horizontal"},
+    {"from": "web", "to": "agent", "tone": "teal", "route": "vertical"},
+    {"from": "agent", "to": "response", "tone": "green", "route": "vertical"}
+  ]
+}

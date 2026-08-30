@@ -4,10 +4,14 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.13.2"
+    "@google/adk": "^2.0.0",
+    "@google/genai": "^2.18.0",
+    "hono": "^4.13.2",
+    "twilio": "^6.1.0"
   },
   "devDependencies": {
     "@types/bun": "latest",

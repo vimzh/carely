@@ -6,3 +6,6 @@ dist/
 .env*
 !.env.example
 .DS_Store
+apps/web/data/*.sqlite*
+apps/web/data/uploads/
+apps/api/data/*.sqlite*

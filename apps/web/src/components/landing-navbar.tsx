@@ -1,9 +1,9 @@
 // Floating landing navigation with the Carely mark, section links, and authentication action.
-import Image from "next/image";
 import Link from "next/link";
 import localFont from "next/font/local";
 
 import { AuthButton } from "@/components/auth-button";
+import AIOrbFace from "@/components/smoothui/ai-orb-face";
 
 const mackinac = localFont({
   src: "../app/fonts/p22-mackinac-book.woff2",
@@ -26,7 +26,15 @@ export function LandingNavbar() {
         aria-label="Main navigation"
       >
         <Link href="#carely-hero" className="flex shrink-0 items-center gap-2">
-          <Image src="/carely-face.svg" alt="" width={38} height={38} className="size-9" priority />
+          <AIOrbFace
+            size={38}
+            state="done"
+            colors={{
+              body: "oklch(84% 0.09 151)",
+              bodyEdge: "oklch(68% 0.14 151)",
+              feature: "oklch(25% 0.04 151)",
+            }}
+          />
           <span className={`${mackinac.className} hidden text-2xl font-normal tracking-tight text-foreground sm:inline`}>
             Carely
           </span>

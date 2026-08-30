@@ -1,10 +1,13 @@
-// Session-only visual guides that Carely can explain during a phone call.
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { BookOpenText, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, BookOpenText, Plus } from "lucide-react";
 
+import { createGuide, updateGuide } from "@/app/(dashboard)/guides/actions";
+import { DashboardPageHeader } from "@/components/dashboard-page-header";
+import { GuideContentFields } from "@/components/guide-content-fields";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,86 +25,84 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { Guide } from "@/lib/guides";
 
-type Guide = {
-  id: string;
-  title: string;
-  note: string;
-  context: string;
-  contextAsset: string;
-  contextAssetKind: "image" | "pdf";
-};
+const guideDateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+  year: "numeric",
+});
 
-const initialGuides: Guide[] = [
-  {
-    id: "air-conditioner",
-    title: "How to configure the AC",
-    note: "A simple way to cool the room without changing the wrong setting.",
-    context:
-      "Tell them to press the power button, choose Cool, and set the temperature to 24 degrees. If the remote shows a fan icon, press Mode until the snowflake appears.",
-    contextAsset: "/card-backgrounds/add-what-matters.png",
-    contextAssetKind: "image",
-  },
-  {
-    id: "oven",
-    title: "How to use the oven",
-    note: "Step-by-step help for warming food safely.",
-    context:
-      "Explain which knob turns the oven on, how to choose 180 degrees, and how to check that the red heating light has turned off before opening the door.",
-    contextAsset: "/card-backgrounds/call-from-any-phone.png",
-    contextAssetKind: "image",
-  },
-  {
-    id: "tv-remote",
-    title: "How to use the TV remote",
-    note: "Help finding the right channel and returning to normal TV.",
-    context:
-      "Start with the large power button, use the channel up and down buttons, and press Input if the screen says No signal. Remind them which button changes the volume.",
-    contextAsset: "/card-backgrounds/talk-it-through.png",
-    contextAssetKind: "image",
-  },
-];
+function formatGuideDate(value?: string) {
+  return value ? guideDateFormatter.format(new Date(value)) : null;
+}
 
-function GuideCard({ guide, onOpen }: { guide: Guide; onOpen: () => void }) {
+function GuideCard({ guide }: { guide: Guide }) {
+  const added = formatGuideDate(guide.createdAt);
+  const edited = formatGuideDate(guide.updatedAt);
+  const metadata =
+    added && edited && guide.createdAt !== guide.updatedAt
+      ? `Added ${added} · Edited ${edited}`
+      : added
+        ? `Added ${added}`
+        : "Recently added";
+
   return (
-    <Card
-      className="cursor-pointer rounded-md shadow-none transition-colors hover:bg-muted/30 focus-visible:ring-3 focus-visible:ring-ring/50"
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") onOpen();
-      }}
+    <Link
+      href={`/guides/${encodeURIComponent(guide.id)}`}
+      className="rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
-      <CardHeader className="gap-2">
-        <CardTitle className="text-xl">{guide.title}</CardTitle>
-        <CardDescription className="leading-6">{guide.note}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm leading-6 text-muted-foreground">{guide.context}</p>
-      </CardContent>
-    </Card>
+      <Card className="h-full rounded-md shadow-none transition-colors hover:bg-muted/30">
+        <CardHeader className="gap-2">
+          <div className="flex items-start justify-between gap-4">
+            <CardTitle className="text-xl">{guide.title}</CardTitle>
+            <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          </div>
+          <CardDescription className="leading-6">{guide.note}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm leading-6 text-muted-foreground">{guide.context}</p>
+          <p className="text-xs text-muted-foreground">{metadata}</p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
-export function GuidesManager() {
-  const [guides, setGuides] = useState(initialGuides);
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [context, setContext] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
+export function GuidesManager({
+  initialGuides,
+  editGuideId,
+}: {
+  initialGuides: Guide[];
+  editGuideId?: string;
+}) {
+  const guideToEdit = initialGuides.find(({ id }) => id === editGuideId);
+  return (
+    <GuidesManagerContent
+      key={guideToEdit?.id ?? "guides"}
+      guides={initialGuides}
+      guideToEdit={guideToEdit}
+    />
+  );
+}
 
-  const selectedGuide = guides.find(({ id }) => id === selectedGuideId) ?? null;
+function GuidesManagerContent({ guides, guideToEdit }: { guides: Guide[]; guideToEdit?: Guide }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(Boolean(guideToEdit));
+  const [title, setTitle] = useState(guideToEdit?.title ?? "");
+  const [note, setNote] = useState(guideToEdit?.note ?? "");
+  const [context, setContext] = useState(guideToEdit?.context ?? "");
+  const [editingId, setEditingId] = useState<string | null>(guideToEdit?.id ?? null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   function resetForm() {
     setTitle("");
     setNote("");
     setContext("");
-    setImageFile(null);
     setEditingId(null);
+    setError("");
   }
 
   function startNewGuide() {
@@ -109,207 +110,95 @@ export function GuidesManager() {
     setOpen(true);
   }
 
-  function editGuide(guide: Guide) {
-    setEditingId(guide.id);
-    setTitle(guide.title);
-    setNote(guide.note);
-    setContext(guide.context);
-    setImageFile(null);
-    setOpen(true);
-  }
-
-  function saveGuide(event: FormEvent<HTMLFormElement>) {
+  async function saveGuide(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setGuides((current) => {
-      if (!editingId) {
-        return [
-          ...current,
-          {
-            id: `${title}-${Date.now()}`,
-            title: title.trim(),
-            note: note.trim(),
-            context: context.trim(),
-            contextAsset: imageFile
-              ? URL.createObjectURL(imageFile)
-              : "/card-backgrounds/add-what-matters.png",
-            contextAssetKind: imageFile?.type === "application/pdf" ? "pdf" : "image",
-          },
-        ];
-      }
+    setSaving(true);
+    setError("");
+    const formData = new FormData(event.currentTarget);
+    const result = editingId
+      ? await updateGuide(editingId, formData)
+      : await createGuide(formData);
+    setSaving(false);
 
-      return current.map((guide) =>
-        guide.id === editingId
-          ? {
-              ...guide,
-              title: title.trim(),
-              note: note.trim(),
-              context: context.trim(),
-              contextAsset: imageFile ? URL.createObjectURL(imageFile) : guide.contextAsset,
-              contextAssetKind: imageFile
-                ? imageFile.type === "application/pdf"
-                  ? "pdf"
-                  : "image"
-                : guide.contextAssetKind,
-            }
-          : guide,
-      );
-    });
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
     resetForm();
     setOpen(false);
-  }
-
-  function removeGuide(guideId: string) {
-    setGuides((current) => current.filter(({ id }) => id !== guideId));
-    setSelectedGuideId(null);
+    router.replace("/guides");
+    router.refresh();
   }
 
   return (
-    <div className="w-full max-w-5xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Guides</h1>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Teach Carely how to help your family elder with the things around their home.
-          </p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="shrink-0" onClick={startNewGuide}>
-              <Plus aria-hidden="true" />
-              New Guide
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="gap-6 p-6 sm:max-w-lg sm:p-7">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">
-                {editingId ? "Edit guide" : "Add a guide"}
-              </DialogTitle>
-              <DialogDescription className="leading-6">
-                Add the details Carely should explain when your parent asks for help.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={saveGuide} className="grid gap-4">
-              <label className="grid gap-2 text-sm font-medium" htmlFor="guide-title">
-                Title
-                <Input
-                  id="guide-title"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  placeholder="e.g. How to use the washing machine"
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium" htmlFor="guide-note">
-                Note
-                <Input
-                  id="guide-note"
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="A short description for your family"
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium" htmlFor="guide-context">
-                Context
-                <textarea
-                  id="guide-context"
-                  value={context}
-                  onChange={(event) => setContext(event.target.value)}
-                  placeholder="Write the steps Carely should explain out loud."
-                  required
-                  rows={5}
-                  className="w-full resize-y rounded-lg border border-input bg-transparent px-3.5 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium" htmlFor="guide-image">
-                Context image or PDF <span className="font-normal text-muted-foreground">(optional)</span>
-                <Input
-                  id="guide-image"
-                  type="file"
-                  accept="image/*,.pdf,application/pdf"
-                  onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-                />
-              </label>
-              <Button type="submit" className="w-fit">
-                {editingId ? "Save changes" : "Add guide"}
+    <div className="space-y-6">
+      <DashboardPageHeader
+        title="Guides"
+        description="Teach Carely how to help your family elder with the things around their home."
+        action={
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="shrink-0" onClick={startNewGuide}>
+                <Plus aria-hidden="true" />
+                New guide
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90svh] gap-6 overflow-y-auto p-6 sm:max-w-2xl sm:p-7">
+              <DialogHeader>
+                <DialogTitle className="text-2xl">
+                  {editingId ? "Edit guide" : "Add a guide"}
+                </DialogTitle>
+                <DialogDescription className="leading-6">
+                  Add the written steps Carely should explain during the phone call.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={saveGuide} className="grid gap-4">
+                <label className="grid gap-2 text-sm font-medium" htmlFor="guide-title">
+                  Title
+                  <Input
+                    id="guide-title"
+                    name="title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    placeholder="e.g. How to use the washing machine"
+                    maxLength={160}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium" htmlFor="guide-note">
+                  Note
+                  <Input
+                    id="guide-note"
+                    name="note"
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder="A short description for your family"
+                    maxLength={500}
+                    required
+                  />
+                </label>
+                <GuideContentFields
+                  context={context}
+                  onContextChange={setContext}
+                  guideId={guideToEdit?.id}
+                  attachments={guideToEdit?.attachments}
+                />
+                {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+                <Button type="submit" className="w-fit" disabled={saving}>
+                  {saving ? "Saving…" : editingId ? "Save changes" : "Add guide"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
       <div className="grid gap-6">
         {guides.map((guide) => (
-          <GuideCard
-            key={guide.id}
-            guide={guide}
-            onOpen={() => setSelectedGuideId(guide.id)}
-          />
+          <GuideCard key={guide.id} guide={guide} />
         ))}
       </div>
-
-      <Dialog
-        open={selectedGuide !== null}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) setSelectedGuideId(null);
-        }}
-      >
-        <DialogContent className="gap-6 p-6 sm:max-w-4xl sm:p-8">
-          {selectedGuide && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedGuide.title}</DialogTitle>
-                <DialogDescription className="leading-6">{selectedGuide.note}</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-6 md:grid-cols-[1.1fr_1fr]">
-                <div className="relative min-h-64 overflow-hidden rounded-md border bg-muted">
-                  {selectedGuide.contextAssetKind === "pdf" ? (
-                    <iframe
-                      src={selectedGuide.contextAsset}
-                      title={`${selectedGuide.title} context PDF`}
-                      className="absolute inset-0 size-full"
-                    />
-                  ) : (
-                    <Image
-                      src={selectedGuide.contextAsset}
-                      alt=""
-                      fill
-                      unoptimized
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <div className="grid content-start gap-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Context</p>
-                  <p className="text-sm leading-6">{selectedGuide.context}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        editGuide(selectedGuide);
-                        setSelectedGuideId(null);
-                      }}
-                    >
-                      <Pencil aria-hidden="true" />
-                      Edit guide
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => removeGuide(selectedGuide.id)}
-                    >
-                      <Trash2 aria-hidden="true" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {!guides.length && (
         <div className="flex flex-col items-center gap-2 border border-dashed border-border p-10 text-center">

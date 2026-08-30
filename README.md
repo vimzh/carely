@@ -17,6 +17,33 @@ bun run dev
 Set the Google OAuth values in `apps/web/.env.local`. The local redirect URI is
 `http://localhost:3004/api/auth/callback/google`.
 
+Home-location selection and nearby answers are disabled by default. Set
+`NEXT_PUBLIC_CARELY_PLACES_ENABLED=true` in the web app and
+`CARELY_PLACES_ENABLED=true` in the API to opt in. The feature requires a
+browser-restricted `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` for Maps JavaScript and a
+server-restricted `GOOGLE_MAPS_API_KEY` for Places API (New); keep the server key
+only in `apps/api/.env`.
+
+Reminders are daily and use each reminder's saved time zone. To place real outbound calls,
+set `CARELY_REMINDER_SCHEDULER_ENABLED=true`, the three Twilio values, and a public
+`CARELY_PUBLIC_URL` in `apps/web/.env.local`; add a phone number to the selected contact
+in the Contacts page. A local `CARELY_PUBLIC_URL` can place the call but cannot receive
+the spoken-response callback from Twilio.
+
+For an inbound Carely conversation, save the caller's complete international number (for
+example, `+91...`) on exactly one care recipient. Deploy `apps/api` behind public HTTPS,
+set its `CARELY_API_PUBLIC_URL`, `CARELY_WEB_ORIGIN`, `TWILIO_AUTH_TOKEN`, and the same
+`CARELY_AGENT_SECRET` used by the web app, then configure the Twilio number's incoming
+Voice webhook as an HTTP `POST` to:
+
+```text
+https://your-carely-api.example/telephony/twilio/incoming
+```
+
+Carely validates Twilio's webhook and WebSocket signatures, maps the caller ID to the
+family account, and converts Twilio's bidirectional phone audio for Gemini Live. Twilio's
+number and account credentials are external resources and are not stored in this repository.
+
 - Frontend: http://localhost:3004
 - API: http://localhost:3001
 - Health check: http://localhost:3001/health

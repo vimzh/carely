@@ -1,9 +1,22 @@
-import { RemindersManager } from "@/components/reminders-manager";
+import { redirect } from "next/navigation";
 
-export default function RemindersPage() {
+import { auth } from "@/auth";
+import { RemindersManager } from "@/components/reminders-manager";
+import { listCareRecipients, listContacts } from "@/lib/contacts-db";
+import { listReminders } from "@/lib/reminders-db";
+import { isReminderCallingConfigured } from "@/lib/reminder-scheduler";
+
+export default async function RemindersPage() {
+  const session = await auth();
+  const ownerEmail = session?.user?.email?.trim().toLowerCase();
+  if (!ownerEmail) redirect("/");
+
   return (
-    <main className="flex min-h-[calc(100svh-3.5rem)] items-start justify-center p-6 sm:p-10">
-      <RemindersManager />
-    </main>
+    <RemindersManager
+      initialReminders={listReminders(ownerEmail)}
+      recipients={listCareRecipients(ownerEmail)}
+      contacts={listContacts(ownerEmail)}
+      callingConfigured={isReminderCallingConfigured()}
+    />
   );
 }
