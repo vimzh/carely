@@ -1,0 +1,11 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "apps/api/Dockerfile", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/carely/api:$BUILD_ID", "."]
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/carely/api:$BUILD_ID"]
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "apps/web/Dockerfile", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/carely/web:$BUILD_ID", "."]
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/carely/web:$BUILD_ID"]
+substitutions:
+  _REGION: us-central1

@@ -1,0 +1,7 @@
+**/.env*
+**/.next
+**/data
+**/dist
+.git
+.serena
+node_modules
