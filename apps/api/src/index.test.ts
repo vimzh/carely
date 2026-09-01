@@ -17,10 +17,22 @@ const { readAgentSession } = await import('./session-store')
 const conversationReviewModule = await import('./conversation-review')
 const { parseConversationReview } = conversationReviewModule
 const { mergeTranscription } = await import('./voice')
+const { createGeminiDeveloperClient } = await import('./gemini-client')
 const { CARELY_TEXT_INSTRUCTION, CARELY_VOICE_INSTRUCTION, createFamilyContextSearchPrompt, createGuideVideoContextPrompt, createImageContextPrompt } = await import('./prompts/carely')
 const { buildConnectedCallTwiML, twilioMediaUrl, validateTwilioWebhook } = await import('./twilio')
 
 const contextHeaders = { authorization: 'Bearer test-agent-secret' }
+
+test('keeps Gemini File Search on the Developer API when agents use Vertex AI', () => {
+  const previous = process.env.GOOGLE_GENAI_USE_ENTERPRISE
+  process.env.GOOGLE_GENAI_USE_ENTERPRISE = 'true'
+  try {
+    expect(createGeminiDeveloperClient().vertexai).toBe(false)
+  } finally {
+    if (previous === undefined) delete process.env.GOOGLE_GENAI_USE_ENTERPRISE
+    else process.env.GOOGLE_GENAI_USE_ENTERPRISE = previous
+  }
+})
 
 function familyContextForm() {
   const form = new FormData()

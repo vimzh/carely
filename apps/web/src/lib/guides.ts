@@ -20,27 +20,27 @@ export type GuideInput = Pick<Guide, "title" | "note" | "context">;
 
 export const initialGuides: Guide[] = [
   {
-    id: "air-conditioner",
-    title: "How to configure the AC",
-    note: "A simple way to cool the room without changing the wrong setting.",
-    context:
-      "Tell them to press the power button, choose Cool, and set the temperature to 24 degrees. If the remote shows a fan icon, press Mode until the snowflake appears.",
-    attachments: [],
-  },
-  {
     id: "oven",
-    title: "How to use the oven",
-    note: "Step-by-step help for warming food safely.",
+    title: "Oven dial: set gas mark 4 safely",
+    note: "Exact help for the numbered oven dial shown in the close-up photo.",
     context:
-      "Explain which knob turns the oven on, how to choose 180 degrees, and how to check that the red heating light has turned off before opening the door.",
+      "Use only the cream oven dial shown in the guide photo. It has OFF at the top, LOW at the upper left, and the numbers 1 through 9 around the lower edge and right side. Explain one physical action per reply and wait for confirmation before continuing. Before turning the oven on, confirm there is nothing stored inside, the door closes normally, and there is no smell of gas. The black indicator line on the white knob shows the selected setting. For ordinary baking at about 180°C, rotate the knob slowly until that black indicator line points exactly to 4. If the caller cannot see the indicator line or the numbers do not match the photo, stop and ask family rather than guessing. Keep hands, cloths, paper, and plastic away from the oven vents and door. Let the oven preheat for 10 minutes, then use dry oven gloves to place the dish on the middle rack and close the door. Set a separate timer for the recipe time; this dial does not turn itself off. When finished, rotate the knob back until the indicator line points exactly to OFF at the top, then visually confirm it is off. If gas is smelled, do not operate a switch, flame, or plug; move outside and call family or the gas emergency service. If there is smoke or fire, keep the door closed, turn the dial to OFF only if safe, move away, and call emergency services.",
     attachments: [],
   },
   {
     id: "tv-remote",
-    title: "How to use the TV remote",
-    note: "Help finding the right channel and returning to normal TV.",
+    title: "Vizio TV remote: channels, volume, and No Signal",
+    note: "Button-by-button help using the exact Vizio remote shown in the close-up photo.",
     context:
-      "Start with the large power button, use the channel up and down buttons, and press Input if the screen says No signal. Remind them which button changes the volume.",
+      "Use only the black Vizio remote shown in the guide photo. Orient it with INPUT at the top left and the red power button at the top right. Explain one physical action per reply and wait for confirmation before continuing. To turn the TV on, press the red power button once. For volume, use the left vertical VOL rocker: the upper arrow makes it louder and the lower arrow makes it quieter. For channels, use the right vertical CH rocker: the upper arrow moves up and the lower arrow moves down. To enter a channel directly, press its number buttons and then ENTER at the bottom left. If the screen says No Signal, press INPUT at the top left once, ask the caller to read the source names shown on the TV, use the arrow pad around OK to highlight the family's TV or HDMI source, and press OK. Do not use the small red record button during basic viewing. If the remote does not respond, check that nothing blocks the TV sensor, then replace both batteries with the same type and match the plus and minus marks. If the TV or remote smells burnt, sparks, or becomes unusually hot, stop using it, move away, and call family.",
+    attachments: [],
+  },
+  {
+    id: "microwave-panel",
+    title: "Microwave keypad: reheat for 60 seconds",
+    note: "Safe reheating using the exact number pad shown in the front-view photo.",
+    context:
+      "Use only the white microwave keypad shown straight-on in the guide photo. Explain one physical action per reply and wait for confirmation before continuing. First confirm the food is in microwave-safe glass or plain ceramic; never allow metal, foil, sealed jars, or ordinary plastic. Cover the bowl loosely so steam can escape, place it in the center, and close the door firmly. For a basic 60-second reheat, press the number 1 once. It is the upper-left key in the number pad, below TIME COOK. On this model, 1 is marked EXPRESS COOK and starts one minute automatically. Do not press START after using 1 unless the display is waiting instead of counting down. When heating stops, wait 10 seconds, open the door carefully, and stir from the center outward. If the food is still cold, close the door and press 1 once more. To stop early, press the round CLEAR/OFF button to the right of the number pad, directly below the round START button. If there is sparking, smoke, a burning smell, or a damaged cable, press CLEAR/OFF if it is safe, keep the door closed, move away, and call family. Never guess a control if the panel does not match the photo.",
     attachments: [],
   },
 ];

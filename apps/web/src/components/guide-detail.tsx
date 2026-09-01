@@ -7,6 +7,7 @@ import { ArrowLeft, Check, MoreVertical, Save, Trash2 } from "lucide-react";
 
 import { deleteGuide, deleteGuideAttachment, updateGuide } from "@/app/(dashboard)/guides/actions";
 import { GuideContentFields } from "@/components/guide-content-fields";
+import { GuideReferencePhoto } from "@/components/guide-reference-photo";
 import { Button } from "@/components/ui/button";
 import type { Guide } from "@/lib/guides";
 
@@ -125,6 +126,8 @@ function GuideEditor({ guide }: { guide: Guide }) {
             </div>
           </details>
         </header>
+
+        <GuideReferencePhoto guideId={guide.id} />
 
         <section className="max-w-3xl" aria-label="Guide content">
           <GuideContentFields

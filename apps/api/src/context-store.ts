@@ -1,14 +1,13 @@
 // Ingests, retrieves, and lists each family's durable Gemini File Search context.
 import { createHash } from 'node:crypto'
 
-import { GoogleGenAI } from '@google/genai'
-
 import { database } from './database'
+import { createGeminiDeveloperClient } from './gemini-client'
 import { createFamilyContextSearchPrompt, createGuideVideoContextPrompt, createImageContextPrompt, createMediaContextPrompt } from './prompts/carely'
 
 const CONTEXT_MODEL = 'gemini-3.5-flash-lite'
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { timeout: 60_000 } })
+const ai = createGeminiDeveloperClient()
 // ponytail: process-local creation lock; persist store IDs before horizontally scaling the API.
 const storeNamePromises = new Map<string, Promise<string>>()
 
@@ -122,12 +121,12 @@ async function uploadContextDocument(ownerEmail: string, input: {
     },
   })
 
-  for (let attempt = 0; !operation.done && attempt < 120; attempt += 1) {
+  for (let attempt = 0; !operation.done && !operation.response?.documentName && attempt < 120; attempt += 1) {
     await Bun.sleep(1000)
     operation = await ai.operations.get({ operation })
   }
 
-  if (!operation.done) throw new Error('Gemini File Search ingestion timed out')
+  if (!operation.done && !operation.response?.documentName) throw new Error('Gemini File Search ingestion timed out')
   if (operation.error) throw new Error(`Gemini File Search ingestion failed: ${JSON.stringify(operation.error)}`)
   if (!operation.response?.documentName) throw new Error('Gemini File Search returned no document name')
   return operation.response.documentName

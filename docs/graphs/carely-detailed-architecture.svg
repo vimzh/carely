@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title description" data-layout-version="cloudy-native-v2" data-spec-sha256="a0412a6cac144abf484c934585fa3255256b9b9d80dd93abef94e3deeb5b9b11">
+  <title id="title">Carely system architecture</title>
+  <desc id="description">Detailed architecture of Carely showing family and elder entry points, the Next.js and Hono Cloud Run services, multimodal guide ingestion, owner-keyed Gemini File Search, Google ADK orchestration, live voice delivery, reminders, and reviewed conversation outcomes.</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker>
+    <marker id="arrow-violet" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/></marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/></marker>
+    <marker id="arrow-amber" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#d97706"/></marker>
+    <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#0f766e"/></marker>
+    <marker id="arrow-rose" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#e11d48"/></marker>
+    <marker id="arrow-slate" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#57534e"/></marker>
+    <style>
+      text { font-family: "Comic Sans MS", "Segoe Print", cursive; }
+      .title { font-size: 36px; fill: #292524; }
+      .subtitle { font-size: 17px; fill: #78716c; }
+      .zone-label { font-size: 14px; letter-spacing: 1px; }
+      .node-title { font-size: 20px; fill: #292524; }
+      .node-body { font-size: 15px; fill: #44403c; }
+      .node-note { font-size: 13px; fill: #57534e; }
+      .edge-label { font-size: 13px; fill: #57534e; paint-order: stroke; stroke: #fffdf8; stroke-width: 4px; stroke-linejoin: round; }
+      .footer { font-size: 13px; fill: #57534e; }
+      .arrow { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#fffdf8"/>
+  <text x="54" y="62" class="title">Carely system architecture</text>
+  <text x="54" y="94" class="subtitle">Family-authored context becomes safe, owner-scoped help over an ordinary phone call or the web</text>
+  <rect data-zone-id="people" x="42.0" y="130" width="259.8" height="690" rx="28" fill="#eff6ff" stroke="#93c5fd" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="62.0" y="160" class="zone-label" fill="#1e40af">1 · PEOPLE + CHANNELS</text>
+  <rect data-zone-id="control" x="329.8" y="130" width="349.7" height="690" rx="28" fill="#fafaf9" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="349.8" y="160" class="zone-label" fill="#44403c">2 · CARELY CONTROL PLANE</text>
+  <rect data-zone-id="intelligence" x="707.4" y="130" width="449.6" height="690" rx="28" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="727.4" y="160" class="zone-label" fill="#5b21b6">3 · AGENT + FAMILY MEMORY</text>
+  <rect data-zone-id="outcomes" x="1185.0" y="130" width="373.0" height="690" rx="28" fill="#f0fdf4" stroke="#86efac" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="1205.0" y="160" class="zone-label" fill="#166534">4 · SAFE OUTCOMES</text>
+  <path class="arrow" data-edge="family--web" d="M271.8 258.0 C302.6 258.0 329.0 258.0 359.8 258.0" stroke="#2563eb" marker-end="url(#arrow-blue)"/>
+  <path class="arrow" data-edge="elder--api" d="M271.8 558.0 C302.6 558.0 329.0 558.0 359.8 558.0" stroke="#2563eb" marker-end="url(#arrow-blue)"/>
+  <path class="arrow" data-edge="web--ingestion" d="M649.4 258.0 C680.2 258.0 706.6 258.0 737.4 258.0" stroke="#7c3aed" marker-end="url(#arrow-violet)"/>
+  <path class="arrow" data-edge="web--agent" d="M649.4 258.0 H693.4 V558.0 H737.4" stroke="#7c3aed" marker-end="url(#arrow-violet)"/>
+  <path class="arrow" data-edge="api--agent" d="M649.4 558.0 C680.2 558.0 706.6 558.0 737.4 558.0" stroke="#7c3aed" marker-end="url(#arrow-violet)"/>
+  <path class="arrow" data-edge="ingestion--memory" d="M932.2 322.0 V352.0" stroke="#7c3aed" marker-end="url(#arrow-violet)"/>
+  <path class="arrow" data-edge="memory--agent" d="M932.2 464.0 V502.0" stroke="#7c3aed" marker-end="url(#arrow-violet)"/>
+  <path class="arrow" data-edge="agent--reminder" d="M1127.0 558.0 H1171.0 V258.0 H1215.0" stroke="#d97706" marker-end="url(#arrow-amber)"/>
+  <path class="arrow" data-edge="agent--answer" d="M1127.0 558.0 C1157.8 558.0 1184.2 558.0 1215.0 558.0" stroke="#16a34a" marker-end="url(#arrow-green)"/>
+  <path class="arrow" data-edge="agent--review" d="M1127.0 558.0 H1171.0 V710.0 H1215.0" stroke="#16a34a" marker-end="url(#arrow-green)"/>
+  <path class="arrow" data-edge="review--family" d="M1528.0 710.0 H1546.0 V806.0 H54.0 V258.0 H72.0" stroke="#16a34a" marker-end="url(#arrow-green)"/>
+  <rect class="node" data-node-id="family" data-status="external" x="72.0" y="183.0" width="199.8" height="150.0" rx="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="171.9" y="218.0" text-anchor="middle" class="node-title">Family member</text>
+  <text x="171.9" y="249.0" text-anchor="middle" class="node-body">adds profiles,</text>
+  <text x="171.9" y="271.0" text-anchor="middle" class="node-body">guides, reminders</text>
+  <text x="171.9" y="293.0" text-anchor="middle" class="node-body">reviews call</text>
+  <text x="171.9" y="315.0" text-anchor="middle" class="node-body">outcomes</text>
+  <rect class="node" data-node-id="elder" data-status="external" x="72.0" y="492.0" width="199.8" height="132.0" rx="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="171.9" y="527.0" text-anchor="middle" class="node-title">Elder calls</text>
+  <text x="171.9" y="553.0" text-anchor="middle" class="node-title">Carely</text>
+  <text x="171.9" y="584.0" text-anchor="middle" class="node-body">ordinary phone · no</text>
+  <text x="171.9" y="606.0" text-anchor="middle" class="node-body">app or internet</text>
+  <rect class="node" data-node-id="web" data-status="implemented" x="359.8" y="194.0" width="289.7" height="128.0" rx="22" fill="#f5f5f4" stroke="#57534e" stroke-width="2"/>
+  <text x="504.6" y="229.0" text-anchor="middle" class="node-title">Next.js dashboard</text>
+  <text x="504.6" y="260.0" text-anchor="middle" class="node-body">Google sign-in + owner records</text>
+  <text x="504.6" y="282.0" text-anchor="middle" class="node-body">Cloud Run · instance-local</text>
+  <text x="504.6" y="304.0" text-anchor="middle" class="node-body">SQLite</text>
+  <rect class="node" data-node-id="api" data-status="implemented" x="359.8" y="483.0" width="289.7" height="150.0" rx="22" fill="#f5f5f4" stroke="#57534e" stroke-width="2"/>
+  <text x="504.6" y="518.0" text-anchor="middle" class="node-title">Hono API boundary</text>
+  <text x="504.6" y="549.0" text-anchor="middle" class="node-body">shared-secret dashboard</text>
+  <text x="504.6" y="571.0" text-anchor="middle" class="node-body">requests</text>
+  <text x="504.6" y="593.0" text-anchor="middle" class="node-body">signed Twilio traffic + caller</text>
+  <text x="504.6" y="615.0" text-anchor="middle" class="node-body">match</text>
+  <rect class="node" data-node-id="ingestion" data-status="implemented" x="737.4" y="194.0" width="389.6" height="128.0" rx="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="932.2" y="229.0" text-anchor="middle" class="node-title">Multimodal guide ingestion</text>
+  <text x="932.2" y="260.0" text-anchor="middle" class="node-body">text + documents pass through</text>
+  <text x="932.2" y="282.0" text-anchor="middle" class="node-body">Gemini extracts image, audio, video</text>
+  <text x="932.2" y="304.0" text-anchor="middle" class="node-body">context</text>
+  <rect class="node" data-node-id="memory" data-status="implemented" x="737.4" y="352.0" width="389.6" height="112.0" rx="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="932.2" y="387.0" text-anchor="middle" class="node-title">Owner-keyed Gemini File Search</text>
+  <text x="932.2" y="418.0" text-anchor="middle" class="node-body">one store per normalized family owner</text>
+  <text x="932.2" y="440.0" text-anchor="middle" class="node-body">top-3 context + cited filenames</text>
+  <rect class="node" data-node-id="agent" data-status="implemented" x="737.4" y="502.0" width="389.6" height="112.0" rx="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="932.2" y="537.0" text-anchor="middle" class="node-title">Google ADK agent on Vertex AI</text>
+  <text x="932.2" y="568.0" text-anchor="middle" class="node-body">text + live voice share tools and policy</text>
+  <text x="932.2" y="590.0" text-anchor="middle" class="node-body">basic questions skip family memory</text>
+  <rect class="node" data-node-id="reminder" data-status="implemented" x="1215.0" y="202.0" width="313.0" height="112.0" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="1371.5" y="237.0" text-anchor="middle" class="node-title">Reminder calls</text>
+  <text x="1371.5" y="268.0" text-anchor="middle" class="node-body">validated dashboard write</text>
+  <text x="1371.5" y="290.0" text-anchor="middle" class="node-body">daily claim blocks duplicates</text>
+  <rect class="node" data-node-id="answer" data-status="implemented" x="1215.0" y="481.0" width="313.0" height="154.0" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="1371.5" y="516.0" text-anchor="middle" class="node-title">Calm answer on phone or</text>
+  <text x="1371.5" y="542.0" text-anchor="middle" class="node-title">web</text>
+  <text x="1371.5" y="573.0" text-anchor="middle" class="node-body">Twilio mu-law ↔ PCM ↔ Gemini Live</text>
+  <text x="1371.5" y="595.0" text-anchor="middle" class="node-body">simple Hindi or English · one</text>
+  <text x="1371.5" y="617.0" text-anchor="middle" class="node-body">idea at a time</text>
+  <rect class="node" data-node-id="review" data-status="implemented" x="1215.0" y="646.0" width="313.0" height="128.0" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="1371.5" y="681.0" text-anchor="middle" class="node-title">Reviewed call evidence</text>
+  <text x="1371.5" y="712.0" text-anchor="middle" class="node-body">transcript + sources + actions</text>
+  <text x="1371.5" y="734.0" text-anchor="middle" class="node-body">resolution · accuracy · clarity ·</text>
+  <text x="1371.5" y="756.0" text-anchor="middle" class="node-body">tone · safety</text>
+  <rect x="54" y="844" width="1492" height="36" rx="14" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="800" y="868" text-anchor="middle" class="footer">Trust: Google sign-in; a shared service secret; Twilio signatures plus caller matching for phone access.</text>
+</svg>

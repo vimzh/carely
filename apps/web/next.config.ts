@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "45mb",
     },
   },
+  rewrites: async () => [
+    {
+      source: "/pitch",
+      destination: "/pitch/index.html",
+    },
+  ],
 };
 
 export default nextConfig;

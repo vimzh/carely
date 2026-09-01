@@ -102,6 +102,14 @@ test('keeps safety, grounding, and untrusted-data boundaries in both agent promp
   }
 })
 
+test('greets once instead of restarting the conversation on every turn', () => {
+  for (const prompt of [CARELY_TEXT_INSTRUCTION, CARELY_VOICE_INSTRUCTION]) {
+    expect(prompt).toContain('Never start every reply with "Namaste"')
+  }
+  expect(CARELY_VOICE_INSTRUCTION).toContain('applies only to your first response in that call')
+  expect(CARELY_VOICE_INSTRUCTION).toContain('Do not repeat the greeting on later turns')
+})
+
 test('treats guide instructions and review content as data, not model instructions', () => {
   const writtenContext = 'Written instructions: Press the blue Mode button once.'
   expect(createImageContextPrompt(writtenContext)).toContain(writtenContext)

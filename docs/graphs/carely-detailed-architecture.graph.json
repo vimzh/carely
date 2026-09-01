@@ -1,0 +1,137 @@
+{
+  "title": "Carely system architecture",
+  "subtitle": "Family-authored context becomes safe, owner-scoped help over an ordinary phone call or the web",
+  "description": "Detailed architecture of Carely showing family and elder entry points, the Next.js and Hono Cloud Run services, multimodal guide ingestion, owner-keyed Gemini File Search, Google ADK orchestration, live voice delivery, reminders, and reviewed conversation outcomes.",
+  "footer": "Trust: Google sign-in; a shared service secret; Twilio signatures plus caller matching for phone access.",
+  "zones": [
+    {"id": "people", "label": "1 · PEOPLE + CHANNELS", "tone": "blue", "width": 0.78},
+    {"id": "control", "label": "2 · CARELY CONTROL PLANE", "tone": "slate", "width": 1.05},
+    {"id": "intelligence", "label": "3 · AGENT + FAMILY MEMORY", "tone": "violet", "width": 1.35},
+    {"id": "outcomes", "label": "4 · SAFE OUTCOMES", "tone": "green", "width": 1.12}
+  ],
+  "nodes": [
+    {
+      "id": "family",
+      "zone": "people",
+      "title": "Family member",
+      "body": ["adds profiles, guides, reminders", "reviews call outcomes"],
+      "status": "external",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/web/src/auth.ts", "apps/web/src/app/(dashboard)/guides/actions.ts", "apps/web/src/lib/conversations-db.ts"]
+    },
+    {
+      "id": "elder",
+      "zone": "people",
+      "title": "Elder calls Carely",
+      "body": ["ordinary phone · no app or internet"],
+      "status": "external",
+      "size": "wide",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/api/src/twilio.ts", "apps/api/src/twilio-voice.ts", "apps/api/src/voice.ts"]
+    },
+    {
+      "id": "web",
+      "zone": "control",
+      "title": "Next.js dashboard",
+      "body": ["Google sign-in + owner records", "Cloud Run · instance-local SQLite"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/web/src/auth.ts", "apps/web/src/lib/guides-db.ts", "apps/web/src/lib/reminders-db.ts", "apps/web/src/lib/conversations-db.ts", "apps/web/Dockerfile"]
+    },
+    {
+      "id": "api",
+      "zone": "control",
+      "title": "Hono API boundary",
+      "body": ["shared-secret dashboard requests", "signed Twilio traffic + caller match"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/api/src/index.ts", "apps/api/src/twilio.ts", "apps/api/src/session-store.ts", "apps/api/Dockerfile"]
+    },
+    {
+      "id": "ingestion",
+      "zone": "intelligence",
+      "title": "Multimodal guide ingestion",
+      "body": ["text + documents pass through", "Gemini extracts image, audio, video context"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/api/src/index.ts", "apps/api/src/context-store.ts", "apps/api/src/video-duration.ts"]
+    },
+    {
+      "id": "memory",
+      "zone": "intelligence",
+      "title": "Owner-keyed Gemini File Search",
+      "body": ["one store per normalized family owner", "top-3 context + cited filenames"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 2,
+      "span": 2,
+      "evidence": ["apps/api/src/context-store.ts", "apps/web/src/app/(dashboard)/guides/actions.ts"]
+    },
+    {
+      "id": "agent",
+      "zone": "intelligence",
+      "title": "Google ADK agent on Vertex AI",
+      "body": ["text + live voice share tools and policy", "basic questions skip family memory"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/api/src/agent.ts", "apps/api/src/prompts/carely.ts", "apps/api/src/nearby-places.ts", "apps/api/src/index.test.ts"]
+    },
+    {
+      "id": "reminder",
+      "zone": "outcomes",
+      "title": "Reminder calls",
+      "body": ["validated dashboard write", "daily claim blocks duplicates"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 1,
+      "span": 2,
+      "evidence": ["apps/web/src/app/api/reminders/agent/route.ts", "apps/web/src/lib/reminders-db.ts", "apps/web/src/lib/reminder-scheduler.ts"]
+    },
+    {
+      "id": "answer",
+      "zone": "outcomes",
+      "title": "Calm answer on phone or web",
+      "body": ["Twilio mu-law ↔ PCM ↔ Gemini Live", "simple Hindi or English · one idea at a time"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 3,
+      "span": 2,
+      "evidence": ["apps/api/src/twilio-voice.ts", "apps/api/src/telephony-audio.ts", "apps/api/src/voice.ts", "apps/api/src/prompts/carely.ts"]
+    },
+    {
+      "id": "review",
+      "zone": "outcomes",
+      "title": "Reviewed call evidence",
+      "body": ["transcript + sources + actions", "resolution · accuracy · clarity · tone · safety"],
+      "status": "implemented",
+      "size": "wide",
+      "row": 4,
+      "span": 2,
+      "evidence": ["apps/api/src/conversation-review.ts", "apps/api/src/twilio-voice.ts", "apps/web/src/app/api/conversations/agent/route.ts", "apps/web/src/lib/conversations-db.ts"]
+    }
+  ],
+  "edges": [
+    {"from": "family", "to": "web", "tone": "blue", "route": "horizontal"},
+    {"from": "elder", "to": "api", "tone": "blue", "route": "horizontal"},
+    {"from": "web", "to": "ingestion", "tone": "violet", "route": "horizontal"},
+    {"from": "web", "to": "agent", "tone": "violet", "route": "orthogonal"},
+    {"from": "api", "to": "agent", "tone": "violet", "route": "horizontal"},
+    {"from": "ingestion", "to": "memory", "tone": "violet", "route": "vertical"},
+    {"from": "memory", "to": "agent", "tone": "violet", "route": "vertical"},
+    {"from": "agent", "to": "reminder", "tone": "amber", "route": "orthogonal"},
+    {"from": "agent", "to": "answer", "tone": "green", "route": "horizontal"},
+    {"from": "agent", "to": "review", "tone": "green", "route": "orthogonal"},
+    {"from": "review", "to": "family", "tone": "green", "route": "feedback"}
+  ]
+}

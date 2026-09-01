@@ -8,6 +8,7 @@ import { ArrowUpRight, BookOpenText, Plus } from "lucide-react";
 import { createGuide, updateGuide } from "@/app/(dashboard)/guides/actions";
 import { DashboardPageHeader } from "@/components/dashboard-page-header";
 import { GuideContentFields } from "@/components/guide-content-fields";
+import { GuideReferencePhoto } from "@/components/guide-reference-photo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,7 +54,8 @@ function GuideCard({ guide }: { guide: Guide }) {
       href={`/guides/${encodeURIComponent(guide.id)}`}
       className="rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
-      <Card className="h-full rounded-md shadow-none transition-colors hover:bg-muted/30">
+      <Card className="h-full overflow-hidden rounded-md shadow-none transition-colors hover:bg-muted/30">
+        <GuideReferencePhoto guideId={guide.id} compact />
         <CardHeader className="gap-2">
           <div className="flex items-start justify-between gap-4">
             <CardTitle className="text-xl">{guide.title}</CardTitle>

@@ -1,0 +1,39 @@
+{
+  "plugin": "devpost-hackathon",
+  "version": 2,
+  "hackathon": {
+    "slug": "allthingsagentichackathon",
+    "name": "All Things Agentic Hackathon",
+    "url": "https://allthingsagentichackathon.devpost.com/",
+    "selected": true,
+    "source": "known"
+  },
+  "participant": {
+    "name": "Vansh Gaur",
+    "display_name": "Vansh"
+  },
+  "project": {
+    "name": "Carely",
+    "summary": "An agentic elder-care companion that helps families preserve context, guide loved ones, and coordinate reminders.",
+    "ai_usage": "Google ADK with Gemini 3.5 Flash Lite on Vertex AI",
+    "codex_usage": "Codex helped implement, audit, test, harden, and deploy the project."
+  },
+  "current_stage": "prepare-submission",
+  "completed_stages": [
+    "start-hackathon",
+    "review"
+  ],
+  "rules_acknowledged": true,
+  "learning": {
+    "status": "not-started",
+    "current_step": "",
+    "completed_steps": [],
+    "plan_file": "",
+    "checklist_file": ""
+  },
+  "submission": {
+    "draft_file": "devpost-submission.md",
+    "status": "drafting"
+  },
+  "next_command": "prepare-submission"
+}

@@ -1,6 +1,5 @@
 // Creates a compact, structured family brief from a completed Carely conversation.
-import { GoogleGenAI } from '@google/genai'
-
+import { createGeminiClient } from './gemini-client'
 import { createConversationReviewPrompt } from './prompts/carely'
 
 export type TranscriptEntry = { role: 'assistant' | 'user'; text: string }
@@ -118,7 +117,7 @@ export function normalizeConversationReviewInput(value: unknown): ConversationRe
 
 export async function reviewConversation(input: ConversationReviewInput) {
   if (!input.transcript.length) throw new Error('A transcript is required for conversation review')
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { timeout: 60_000 } })
+  const ai = createGeminiClient()
   const response = await ai.models.generateContent({
     model: REVIEW_MODEL,
     contents: createConversationReviewPrompt({

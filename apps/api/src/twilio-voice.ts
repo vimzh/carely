@@ -137,7 +137,7 @@ export function createTwilioVoiceSocketEvents(): WSEvents {
         queue.sendContent({
           role: 'user',
           parts: [{
-            text: `Verified telephone caller metadata: ${JSON.stringify({ recipientName: session.recipientName })}. Start with a very short Hindi-only greeting, say you are Carely using feminine Hindi grammar, then ask how you can help.`,
+            text: `Verified telephone caller metadata: ${JSON.stringify({ recipientName: session.recipientName })}. This is the opening turn only. Greet once in very short Hindi, say you are Carely using feminine Hindi grammar, then ask how you can help. Do not repeat this greeting on later turns.`,
           }],
         })
 

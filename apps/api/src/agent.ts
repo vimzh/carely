@@ -7,7 +7,6 @@ import type { ConversationAction } from './conversation-review'
 import { searchNearbyPlaces } from './nearby-places'
 import { CARELY_TEXT_INSTRUCTION, CARELY_VOICE_INSTRUCTION } from './prompts/carely'
 import { createPersonalReminder } from './reminders'
-import { OpenRouterLlm } from './openrouter-llm'
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is required to run the Carely agent')
@@ -258,21 +257,16 @@ const searchNearbyPlacesTool = new FunctionTool({
 })
 
 const placesEnabled = process.env.CARELY_PLACES_ENABLED === 'true'
-const openRouterApiKey = process.env.OPENROUTER_API_KEY
 const carelyTools = [
   searchFamilyContextTool,
   ...(placesEnabled ? [searchNearbyPlacesTool] : []),
   createPersonalReminderTool,
-  ...(openRouterApiKey ? [] : [GOOGLE_SEARCH]),
+  GOOGLE_SEARCH,
 ]
-
-const carelyTextModel = openRouterApiKey
-  ? new OpenRouterLlm(openRouterApiKey)
-  : new Gemini({ model: 'gemini-3.5-flash-lite', useInteractionsApi: true })
 
 const carelyAgent = new LlmAgent({
   name: 'carely',
-  model: carelyTextModel,
+  model: new Gemini({ model: 'gemini-3.5-flash-lite' }),
   description: 'A patient voice companion for elderly family members.',
   instruction: CARELY_TEXT_INSTRUCTION,
   tools: carelyTools,
@@ -286,15 +280,25 @@ const carelyAgent = new LlmAgent({
 
 const runner = new InMemoryRunner({ agent: carelyAgent, appName: 'carely' })
 
+const useVertex = process.env.GOOGLE_GENAI_USE_ENTERPRISE === 'true'
+  || process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true'
+const voiceModel = useVertex
+  ? new Gemini({
+      model: 'gemini-live-2.5-flash-native-audio',
+      vertexai: true,
+      project: process.env.GOOGLE_CLOUD_PROJECT,
+      location: 'us-central1',
+    })
+  : 'gemini-3.1-flash-live-preview'
+
 const carelyVoiceAgent = new LlmAgent({
   name: 'carely_voice',
-  model: 'gemini-3.1-flash-live-preview',
+  model: voiceModel,
   description: 'A soft-spoken live guide for elderly family members.',
   instruction: CARELY_VOICE_INSTRUCTION,
   tools: carelyTools,
   generateContentConfig: {
     maxOutputTokens: 2048,
-    thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
   },
 })
 
